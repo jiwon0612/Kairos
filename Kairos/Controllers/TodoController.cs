@@ -33,14 +33,17 @@ namespace Kairos.Controllers
                 ProjectID = request.ProjectID
             };
             var createdTodo = _todoService.Create(todo);
-            return CreatedAtAction(nameof(GetByID), new { id = createdTodo.ID }, createdTodo);
+            var response = new CreateTodoResponse { ID = createdTodo.ID };
+
+            return CreatedAtAction(nameof(GetByID), new { id = createdTodo.ID }, response);
         }
 
         [HttpGet]
         public IActionResult GetAll()
         {
             var todos = _todoService.GetAll();
-            return Ok(todos);
+            var response = todos.Select(TodoResponse.FromEntity).ToList();
+            return Ok(response);
         }
 
         [HttpGet("{id}")]
@@ -49,7 +52,7 @@ namespace Kairos.Controllers
             var todo = _todoService.GetByID(id);
             if (todo == null)
                 return NotFound();
-            return Ok(todo);
+            return Ok(TodoResponse.FromEntity(todo));
         }
 
         [HttpPut("{id}")]

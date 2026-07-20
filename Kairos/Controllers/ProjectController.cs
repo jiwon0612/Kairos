@@ -27,14 +27,16 @@ namespace Kairos.Controllers
             };
 
             var createdProject = _projectService.Create(project);
-            return CreatedAtAction(nameof(GetByID), new { id = createdProject.ID }, createdProject);
+            var response = new CreateProjectResponse { ID = createdProject.ID };
+            return CreatedAtAction(nameof(GetByID), new { id = createdProject.ID }, response);
         }
 
         [HttpGet]
         public IActionResult GetAll()
         {
             var projects = _projectService.GetAll();
-            return Ok(projects);
+            var response = projects.Select(ProjectResponse.FromEntity).ToList();
+            return Ok(response);
         }
 
         [HttpGet("{id}")]
@@ -43,7 +45,7 @@ namespace Kairos.Controllers
             var project = _projectService.GetByID(id);
             if (project == null)
                 return NotFound();
-            return Ok(project);
+            return Ok(ProjectResponse.FromEntity(project));
         }
 
         [HttpPut("{id}")]
