@@ -1,4 +1,6 @@
 
+using Microsoft.EntityFrameworkCore;
+
 namespace Kairos
 {
     public class Program
@@ -9,9 +11,18 @@ namespace Kairos
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
-            builder.Services.AddSingleton<Services.IProjectService, Services.InMemoryProjectService>();
-            builder.Services.AddSingleton<Services.ITodoService, Services.InMemoryTodoService>();
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.ReferenceHandler =
+                    System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+                });
+
+            builder.Services.AddDbContext<Data.KairosDbContext>(options =>
+                options.UseNpgsql(builder.Configuration.GetConnectionString("KairosDb")));
+
+            builder.Services.AddScoped<Services.IProjectService, Services.DbProjectService>();
+            builder.Services.AddScoped<Services.ITodoService, Services.DbTodoService>();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
