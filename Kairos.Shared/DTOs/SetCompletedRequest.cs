@@ -1,4 +1,4 @@
-﻿namespace Kairos.DTOs
+﻿namespace Kairos.Shared.DTOs
 {
     public class SetCompletedRequest
     {

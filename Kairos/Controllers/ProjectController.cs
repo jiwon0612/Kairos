@@ -1,4 +1,4 @@
-﻿using Kairos.DTOs;
+﻿using Kairos.Shared.DTOs;
 using Kairos.Models;
 using Kairos.Services;
 using Microsoft.AspNetCore.Http;
@@ -6,6 +6,20 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Kairos.Controllers
 {
+    public static class ProjectExtensions
+    {
+        public static ProjectResponse FromEntity(this Project project)
+        {
+            return new ProjectResponse
+            {
+                ID = project.ID,
+                Name = project.Name,
+                Description = project.Description,
+                CreateTime = project.CreatedTime
+            };
+        }
+    }
+
     [Route("api/[controller]")]
     [ApiController]
     public class ProjectController : ControllerBase
@@ -35,7 +49,7 @@ namespace Kairos.Controllers
         public IActionResult GetAll()
         {
             var projects = _projectService.GetAll();
-            var response = projects.Select(ProjectResponse.FromEntity).ToList();
+            var response = projects.Select(ProjectExtensions.FromEntity).ToList();
             return Ok(response);
         }
 
@@ -45,7 +59,7 @@ namespace Kairos.Controllers
             var project = _projectService.GetByID(id);
             if (project == null)
                 return NotFound();
-            return Ok(ProjectResponse.FromEntity(project));
+            return Ok(project.FromEntity());
         }
 
         [HttpPut("{id}")]

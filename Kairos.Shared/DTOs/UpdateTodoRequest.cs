@@ -1,9 +1,8 @@
-﻿namespace Kairos.DTOs
+﻿namespace Kairos.Shared.DTOs
 {
-    public class CreateTodoRequest
+    public class UpdateTodoRequest
     {
         public string Title { get; set; } = string.Empty;
         public string? Description { get; set; }
-        public int ProjectID { get; set; }
     }
 }

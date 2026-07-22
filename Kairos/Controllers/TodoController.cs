@@ -1,4 +1,4 @@
-﻿using Kairos.DTOs;
+﻿using Kairos.Shared.DTOs;
 using Kairos.Models;
 using Kairos.Services;
 using Microsoft.AspNetCore.Http;
@@ -6,6 +6,23 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Kairos.Controllers
 {
+    public static class TodoExtensions
+    {
+        public static TodoResponse FromEntity(this Models.TodoItem todoItem)
+        {
+            return new TodoResponse
+            {
+                ID = todoItem.ID,
+                Title = todoItem.Title,
+                Description = todoItem.Description,
+                IsCompleted = todoItem.IsCompleted,
+                CompletedTime = todoItem.CompletedTime,
+                CreatedTime = todoItem.CreatedTime,
+                ProjectID = todoItem.ProjectID
+            };
+        }
+    }
+
     [Route("api/[controller]")]
     [ApiController]
     public class TodoController : ControllerBase
@@ -42,7 +59,7 @@ namespace Kairos.Controllers
         public IActionResult GetAll()
         {
             var todos = _todoService.GetAll();
-            var response = todos.Select(TodoResponse.FromEntity).ToList();
+            var response = todos.Select(TodoExtensions.FromEntity).ToList();
             return Ok(response);
         }
 
@@ -52,7 +69,7 @@ namespace Kairos.Controllers
             var todo = _todoService.GetByID(id);
             if (todo == null)
                 return NotFound();
-            return Ok(TodoResponse.FromEntity(todo));
+            return Ok(TodoExtensions.FromEntity(todo));
         }
 
         [HttpPut("{id}")]
