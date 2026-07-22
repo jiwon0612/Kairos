@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Kairos.App.Views.TodoPage"
+             Title="할 일">
+
+    <VerticalStackLayout Padding="20" Spacing="15">
+
+        <Label x:Name="ProjectTitle"
+               Text="프로젝트"
+               FontSize="24"
+               FontAttributes="Bold" />
+
+        <Entry x:Name="TitleEntry"
+               Placeholder="새 할 일" />
+
+        <Button Text="추가"
+                Clicked="OnAddClicked" />
+
+        <CollectionView x:Name="TodoList">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <HorizontalStackLayout Padding="0,8" Spacing="10">
+                        <CheckBox IsChecked="{Binding IsCompleted, Mode=OneWay}"
+                                  CheckedChanged="OnCheckChanged" />
+                        <Label Text="{Binding Title}"
+                               FontSize="18"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </VerticalStackLayout>
+</ContentPage>

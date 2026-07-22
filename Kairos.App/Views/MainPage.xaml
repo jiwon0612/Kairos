@@ -15,7 +15,9 @@
         <Button Text="추가"
                 Clicked="OnAddClicked" />
 
-        <CollectionView x:Name="ProjectList">
+        <CollectionView x:Name="ProjectList"
+                        SelectionMode="Single"
+                        SelectionChanged="OnProjectSelected">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <Label Text="{Binding Name}"

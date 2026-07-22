@@ -55,5 +55,15 @@ namespace Kairos.App
                 await DisplayAlert("오류", $"추가 실패: {ex.Message}", "확인");
             }
         }
+
+        private async void OnProjectSelected(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.CurrentSelection.FirstOrDefault() is not ProjectResponse selectedProject)
+                return;
+
+            ProjectList.SelectedItem = null;
+
+            await Shell.Current.GoToAsync($"TodoPage?projectId={selectedProject.ID}");
+        }
     }
 }
