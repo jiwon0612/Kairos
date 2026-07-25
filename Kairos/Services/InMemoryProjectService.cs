@@ -2,7 +2,7 @@
 
 namespace Kairos.Services
 {
-    public class InMemoryProjectService : IProjectService
+    public class InMemoryProjectService// : IProjectService
     {
         private List<Project> _projects = new List<Project>();
         private int _nextId = 1;

@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Kairos.Api.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace Kairos.Data
 {
-    public class KairosDbContext : DbContext
+    public class KairosDbContext : IdentityDbContext<ApplicationUser>
     {
         public KairosDbContext(DbContextOptions<KairosDbContext> options) : base(options)
         {

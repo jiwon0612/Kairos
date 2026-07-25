@@ -4,10 +4,10 @@ namespace Kairos.Services
 {
     public interface IProjectService
     {
-        List<Project> GetAll();
-        Project? GetByID(int id);
+        List<Project> GetByUser(string userId);
+        Project? GetByID(int id, string userId);
         Project Create(Project project);
-        bool Update(int id, Project project);
-        bool Delete(int id);
+        bool Update(int id, Project project, string userId);
+        bool Delete(int id, string userId);
     }
 }

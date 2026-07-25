@@ -6,7 +6,7 @@
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; } = string.Empty;
         public DateTime CreatedTime { get; set; }
-        public int UserID { get; set; }
+        public string? UserID { get; set; }
         public List<TodoItem> TodoItems { get; set; } = new();
     }
 }

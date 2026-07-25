@@ -2,7 +2,7 @@
 
 namespace Kairos.Services
 {
-    public class InMemoryTodoService : ITodoService
+    public class InMemoryTodoService// : ITodoService
     {
         private List<TodoItem> _todoItems = new List<TodoItem>();
         private int _nextId = 1;

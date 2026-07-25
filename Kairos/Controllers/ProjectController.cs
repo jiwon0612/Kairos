@@ -3,6 +3,8 @@ using Kairos.Models;
 using Kairos.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Kairos.Controllers
 {
@@ -20,6 +22,7 @@ namespace Kairos.Controllers
         }
     }
 
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ProjectController : ControllerBase
@@ -38,6 +41,7 @@ namespace Kairos.Controllers
             {
                 Name = request.Name,
                 Description = request.Description,
+                UserID = GetUserId()
             };
 
             var createdProject = _projectService.Create(project);
@@ -45,10 +49,15 @@ namespace Kairos.Controllers
             return CreatedAtAction(nameof(GetByID), new { id = createdProject.ID }, response);
         }
 
+        private string GetUserId()
+        {
+            return User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        }
+
         [HttpGet]
         public IActionResult GetAll()
         {
-            var projects = _projectService.GetAll();
+            var projects = _projectService.GetByUser(GetUserId());
             var response = projects.Select(ProjectExtensions.FromEntity).ToList();
             return Ok(response);
         }
@@ -56,9 +65,10 @@ namespace Kairos.Controllers
         [HttpGet("{id}")]
         public IActionResult GetByID(int id)
         {
-            var project = _projectService.GetByID(id);
+            var project = _projectService.GetByID(id, GetUserId());
             if (project == null)
                 return NotFound();
+
             return Ok(project.FromEntity());
         }
 
@@ -71,7 +81,7 @@ namespace Kairos.Controllers
                 Description = request.Description,
             };
 
-            var success = _projectService.Update(id, project);
+            var success = _projectService.Update(id, project, GetUserId());
             if (!success)
                 return NotFound();
             return NoContent();
@@ -80,7 +90,7 @@ namespace Kairos.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var deleted = _projectService.Delete(id);
+            var deleted = _projectService.Delete(id, GetUserId());
             if (!deleted)
                 return NotFound();
             return NoContent();

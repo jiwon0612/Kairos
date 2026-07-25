@@ -20,9 +20,9 @@ namespace Kairos.Services
             return todoItem;
         }
 
-        public bool Delete(int id)
+        public bool Delete(int id, string userId)
         {
-            var data = _context.Todos.FirstOrDefault(t => t.ID == id);
+            var data = _context.Todos.FirstOrDefault(t => t.ID == id && t.Project!.UserID == userId);
             if (data == null)
                 return false;
 
@@ -31,19 +31,19 @@ namespace Kairos.Services
             return true;
         }
 
-        public List<TodoItem> GetAll()
+        public List<TodoItem> GetByUser(string userId)
         {
-            return _context.Todos.ToList();
+            return _context.Todos.Where(p => p.Project!.UserID == userId).ToList();
         }
 
-        public TodoItem? GetByID(int id)
+        public TodoItem? GetByID(int id, string userId)
         {
-            return _context.Todos.FirstOrDefault(t => t.ID == id);
+            return _context.Todos.FirstOrDefault(t => t.ID == id && t.Project!.UserID == userId);
         }
 
-        public bool SetCompleted(int id, bool isCompleted)
+        public bool SetCompleted(int id, bool isCompleted, string userId)
         {
-            var data = _context.Todos.FirstOrDefault(t => t.ID == id);
+            var data = _context.Todos.FirstOrDefault(t => t.ID == id && t.Project!.UserID == userId);
             if (data == null)
                 return false;
             data.IsCompleted = isCompleted;
@@ -59,9 +59,9 @@ namespace Kairos.Services
             return true;
         }
 
-        public bool Update(int id, TodoItem todoItem)
+        public bool Update(int id, TodoItem todoItem, string userId)
         {
-            var data = _context.Todos.FirstOrDefault(t => t.ID == id);
+            var data = _context.Todos.FirstOrDefault(t => t.ID == id && t.Project!.UserID == userId);
             if (data == null)
                 return false;
 

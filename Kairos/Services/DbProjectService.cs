@@ -20,9 +20,9 @@ namespace Kairos.Services
             return project;
         }
 
-        public bool Delete(int id)
+        public bool Delete(int id, string userId)
         {
-            var data = _context.Projects.FirstOrDefault(p => p.ID == id);
+            var data = _context.Projects.FirstOrDefault(p => p.ID == id && p.UserID == userId);
             if (data == null)
                 return false;
 
@@ -31,19 +31,19 @@ namespace Kairos.Services
             return true;
         }
 
-        public List<Project> GetAll()
+        public List<Project> GetByUser(string userId)
         {
-            return _context.Projects.ToList();
+            return _context.Projects.ToList().Where(p => p.UserID == userId).ToList();
         }
 
-        public Project? GetByID(int id)
+        public Project? GetByID(int id, string userId)
         {
-            return _context.Projects.FirstOrDefault(p => p.ID == id);
+            return _context.Projects.FirstOrDefault(p => p.ID == id && p.UserID == userId);
         }
 
-        public bool Update(int id, Project project)
+        public bool Update(int id, Project project, string userId)
         {
-            var data = _context.Projects.FirstOrDefault(p => p.ID == id);
+            var data = _context.Projects.FirstOrDefault(p => p.ID == id && p.UserID == userId);
             if (data == null)
                 return false;
 

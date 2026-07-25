@@ -3,6 +3,7 @@ using Kairos.Models;
 using Kairos.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Kairos.Controllers
 {
@@ -23,6 +24,7 @@ namespace Kairos.Controllers
         }
     }
 
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class TodoController : ControllerBase
@@ -36,12 +38,17 @@ namespace Kairos.Controllers
             _projectService = projectService;
         }
 
+        private string GetUserId()
+        {
+            return User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value;
+        }
+
         [HttpPost]
         public IActionResult Create(CreateTodoRequest request)
         {
-            var project = _projectService.GetByID(request.ProjectID);
+            var project = _projectService.GetByID(request.ProjectID, GetUserId());
             if (project == null)
-                return BadRequest($"{request.ProjectID}번 프로젝트는 없다");
+                return BadRequest("존재하지 않거나 접근할 수 없는 프로젝트입니다.");
 
             var todo = new TodoItem
             {
@@ -58,7 +65,8 @@ namespace Kairos.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var todos = _todoService.GetAll();
+
+            var todos = _todoService.GetByUser(GetUserId());
             var response = todos.Select(TodoExtensions.FromEntity).ToList();
             return Ok(response);
         }
@@ -66,9 +74,10 @@ namespace Kairos.Controllers
         [HttpGet("{id}")]
         public IActionResult GetByID(int id)
         {
-            var todo = _todoService.GetByID(id);
+            var todo = _todoService.GetByID(id, GetUserId());
             if (todo == null)
                 return NotFound();
+
             return Ok(TodoExtensions.FromEntity(todo));
         }
 
@@ -81,7 +90,7 @@ namespace Kairos.Controllers
                 Description = request.Description,
             };
 
-            var updatedTodo = _todoService.Update(id, todo);
+            var updatedTodo = _todoService.Update(id, todo, GetUserId());
             if (!updatedTodo)
                 return NotFound();
             return NoContent();
@@ -90,7 +99,7 @@ namespace Kairos.Controllers
         [HttpPut("{id}/completed")]
         public IActionResult SetCompleted(int id, SetCompletedRequest request)
         {
-            var updatedTodo = _todoService.SetCompleted(id, request.IsCompleted);
+            var updatedTodo = _todoService.SetCompleted(id, request.IsCompleted,GetUserId());
             if (!updatedTodo)
                 return NotFound();
             return NoContent();
@@ -99,7 +108,7 @@ namespace Kairos.Controllers
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
-            var deleted = _todoService.Delete(id);
+            var deleted = _todoService.Delete(id, GetUserId());
             if (!deleted)
                 return NotFound();
             return NoContent();
