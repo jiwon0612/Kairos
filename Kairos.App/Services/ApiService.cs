@@ -31,6 +31,28 @@ namespace Kairos.App.Services
             await _http.PostAsJsonAsync("/api/Project", result);
         }
 
+        public async Task UpdateProjectAsync(int id, string name)
+        {
+            var result = new CreateProjectRequest { Name = name };
+            await _http.PutAsJsonAsync($"/api/Project/{id}", result);
+        }
+
+        public async Task DeleteProjectAsync(int id)
+        {
+            await _http.DeleteAsync($"/api/Project/{id}");
+        }
+
+        public async Task UpdateTodoAsync(int id, string title)
+        {
+            var result = new CreateTodoRequest { Title = title };
+            await _http.PutAsJsonAsync($"/api/Todo/{id}", result);
+        }
+
+        public async Task DeleteTodoAsync(int id)
+        {
+            await _http.DeleteAsync($"/api/Todo/{id}");
+        }
+
         public async Task<List<TodoResponse>> GetTodosAsync()
         {
             var result = await _http.GetFromJsonAsync<List<TodoResponse>>("/api/Todo");

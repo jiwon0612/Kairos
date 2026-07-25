@@ -76,5 +76,52 @@ namespace Kairos.App.Views
                 }
             }
         }
+
+        private async void OnEditTodo(object sender, EventArgs e)
+        {
+            if (sender is Button item && item.BindingContext is TodoResponse todo)
+            {
+                var newTitle = await DisplayPromptAsync(
+                    "할 일 수정",
+                    "새 제목을 입력하세요",
+                    initialValue: todo.Title);
+
+                if (string.IsNullOrWhiteSpace(newTitle))
+                    return;
+
+                try
+                {
+                    await _api.UpdateTodoAsync(todo.ID, newTitle);
+                    await LoadTodoAsync();
+                }
+                catch (Exception ex)
+                {
+                    await DisplayAlert("오류", $"수정 실패: {ex.Message}", "확인");
+                }
+            }
+        }
+
+        private async void OnDeleteTodo(object sender, EventArgs e)
+        {
+            if (sender is Button item && item.BindingContext is TodoResponse todo)
+            {
+                bool ok = await DisplayAlert(
+                    "할 일 삭제",
+                    $"'{todo.Title}'을(를) 삭제할까요?",
+                    "삭제", "취소");
+
+                if (!ok) return;
+
+                try
+                {
+                    await _api.DeleteTodoAsync(todo.ID);
+                    await LoadTodoAsync();
+                }
+                catch (Exception ex)
+                {
+                    await DisplayAlert("오류", $"삭제 실패: {ex.Message}", "확인");
+                }
+            }
+        }
     }
 }

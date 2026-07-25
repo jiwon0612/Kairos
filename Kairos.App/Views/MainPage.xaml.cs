@@ -65,5 +65,52 @@ namespace Kairos.App
 
             await Shell.Current.GoToAsync($"TodoPage?projectId={selectedProject.ID}");
         }
+
+        private async void OnEditProject(object sender, EventArgs e)
+        {
+            if (sender is Button item && item.BindingContext is ProjectResponse project)
+            {
+                var newName = await DisplayPromptAsync(
+                    "프로젝트 수정",
+                    "새로운 프로젝트 이름을 입력하세요:",
+                    initialValue: project.Name);
+
+                if (string.IsNullOrWhiteSpace(newName))
+                    return;
+
+                try
+                {
+                    await _api.UpdateProjectAsync(project.ID, newName);
+                    await LoadProjectsAsync();
+                }
+                catch (Exception ex)
+                {
+                    await DisplayAlert("오류", $"수정 실패: {ex.Message}", "확인");
+                }
+            }
+        }
+
+        private async void OnDeleteProject(object sender, EventArgs e)
+        {
+            if (sender is Button item && item.BindingContext is ProjectResponse project)
+            {
+                bool ok = await DisplayAlert(
+                    "프로젝트 삭제",
+                    $"'{project.Name}'을(를) 삭제할까요?\n포함된 할 일도 모두 삭제됩니다.",
+                    "삭제",
+                    "취소");
+                if (!ok) return;
+
+                try
+                {
+                    await _api.DeleteProjectAsync(project.ID);
+                    await LoadProjectsAsync();
+                }
+                catch (Exception ex)
+                {
+                    await DisplayAlert("오류", $"삭제 실패: {ex.Message}", "확인");
+                }
+            }
+        }
     }
 }
