@@ -13,6 +13,10 @@
 
         <Button Text="추가"
                 Clicked="OnAddClicked" />
+        <Button Text="로그아웃"
+        BackgroundColor="Transparent"
+        TextColor="Gray"
+        Clicked="OnLogoutClicked" />
 
         <CollectionView x:Name="ProjectList"
                         SelectionMode="Single"

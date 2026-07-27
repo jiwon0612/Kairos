@@ -4,9 +4,17 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Kairos.App"
+    xmlns:views="clr-namespace:Kairos.App.Views"
     Shell.FlyoutBehavior="Disabled"
     Title="Kairos.App">
 
+    <!-- 로그인 화면 (첫 화면) -->
+    <ShellContent
+        Title="로그인"
+        ContentTemplate="{DataTemplate views:LoginPage}"
+        Route="LoginPage" />
+
+    <!-- 메인 화면 -->
     <ShellContent
         Title="Home"
         ContentTemplate="{DataTemplate local:MainPage}"

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Kairos.App.Views.LoginPage"
+             Title="로그인">
+
+    <VerticalStackLayout Padding="30" Spacing="15"
+                         VerticalOptions="Center">
+
+        <Label Text="Kairos"
+               FontSize="36"
+               FontAttributes="Bold"
+               HorizontalOptions="Center" />
+
+        <Entry x:Name="EmailEntry"
+               Placeholder="이메일"
+               Keyboard="Email" />
+
+        <Entry x:Name="PasswordEntry"
+               Placeholder="비밀번호"
+               IsPassword="True" />
+
+        <Button Text="로그인"
+                Clicked="OnLoginClicked" />
+
+        <Button Text="회원가입"
+                BackgroundColor="Transparent"
+                TextColor="Gray"
+                Clicked="OnRegisterClicked" />
+
+    </VerticalStackLayout>
+</ContentPage>

@@ -112,5 +112,11 @@ namespace Kairos.App
                 }
             }
         }
+
+        private async void OnLogoutClicked(object sender, EventArgs e)
+        {
+            _api.Logout();
+            await Shell.Current.GoToAsync("//LoginPage");
+        }
     }
 }
