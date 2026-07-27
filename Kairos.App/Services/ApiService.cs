@@ -11,7 +11,8 @@ namespace Kairos.App.Services
     internal class ApiService
     {
         private readonly HttpClient _http;
-        private const string BaseUrl = "https://localhost:7107";
+        //private const string BaseUrl = "https://localhost:7107";
+        private const string BaseUrl = "http://192.168.219.104:5011";
         private const string TokenKey = "auth_token";
 
         public ApiService()
