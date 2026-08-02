@@ -18,7 +18,9 @@ namespace Kairos.Controllers
                 Name = project.Name,
                 Description = project.Description,
                 CreateTime = project.CreatedTime,
-                IsToday = project.IsToday
+                IsToday = project.IsToday,
+                CompletedCount = project.TodoItems.Count(t => t.IsCompleted),
+                TotalCount = project.TodoItems.Count
             };
         }
     }

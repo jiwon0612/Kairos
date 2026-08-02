@@ -1,12 +1,15 @@
 ﻿using Google.Apis.Auth;
 using Kairos.Api.Models;
+using Kairos.Data;
 using Kairos.Shared.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualBasic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Kairos.Api.Controllers
@@ -17,11 +20,13 @@ namespace Kairos.Api.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _config;
+        private readonly KairosDbContext _context;
 
-        public AuthController(UserManager<ApplicationUser> userManager, IConfiguration config)
+        public AuthController(UserManager<ApplicationUser> userManager, IConfiguration config, KairosDbContext context)
         {
             _userManager = userManager;
             _config = config;
+            _context = context;
         }
 
         [HttpPost("register")]
@@ -55,8 +60,11 @@ namespace Kairos.Api.Controllers
             if (!valid)
                 return Unauthorized(new { message = "이메일 또는 비밀번호가 올바르지 않습니다." });
 
-            var token = GenerateJwtToken(user);
-            return Ok(new LoginResponse { Token = token });
+            var accessToken = GenerateJwtToken(user);
+
+            var refreshToken = await CreateRefreshTokenAsync(user.Id);
+
+            return Ok(new LoginResponse { Token = accessToken, RefreshToken = refreshToken });
         }
 
         [HttpPost("google")]
@@ -97,6 +105,53 @@ namespace Kairos.Api.Controllers
             return Ok(new LoginResponse { Token = token });
         }
 
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh(RefreshRequest request)
+        {
+            var stored = _context.RefreshTokens.FirstOrDefault(rt => rt.Token == request.RefreshToken);
+
+            if (stored == null || stored.IsRevoked || stored.ExpiresAt < DateTime.UtcNow)
+                return Unauthorized(new { message = "유효하지 않은 리프레시 토큰입니다." });
+
+            var user = await _userManager.FindByIdAsync(stored.UserID);
+            if (user == null)
+                return Unauthorized(new { message = "사용자를 찾을 수 없습니다." });
+
+            var newAccessToken = GenerateJwtToken(user);
+
+            stored.IsRevoked = true;
+            var newRefreshToken = await CreateRefreshTokenAsync(user.Id);
+            await _context.SaveChangesAsync();
+
+            return Ok(new LoginResponse { Token = newAccessToken, RefreshToken = newRefreshToken });
+        }
+
+        private async Task<string> CreateRefreshTokenAsync(string userId)
+        {
+            var token = GenerateRefreshToken();
+
+            var refreshToken = new RefreshToken
+            {
+                Token = token,
+                UserID = userId,
+                ExpiresAt = DateTime.UtcNow.AddDays(14),
+                IsRevoked = false
+            };
+
+            _context.RefreshTokens.Add(refreshToken);
+            await _context.SaveChangesAsync();
+
+            return token;
+        }
+
+        private string GenerateRefreshToken()
+        {
+            var randomBytes = new byte[64];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomBytes);
+            return Convert.ToBase64String(randomBytes);
+        }
+
         private string GenerateJwtToken(ApplicationUser user)
         {
             var claims = new[]
@@ -115,6 +170,8 @@ namespace Kairos.Api.Controllers
                 audience: _config["Jwt:Audience"],
                 claims: claims,
                 expires: DateTime.Now.AddHours(1),
+                //expires: DateTime.Now.AddMinutes(1),
+
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

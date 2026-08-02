@@ -90,6 +90,7 @@ namespace Kairos.Controllers
             {
                 Title = request.Title,
                 Description = request.Description,
+                Priority = request.Priority
             };
 
             var updatedTodo = _todoService.Update(id, todo, GetUserId());

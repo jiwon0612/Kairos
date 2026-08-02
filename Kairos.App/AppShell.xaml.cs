@@ -19,7 +19,7 @@ namespace Kairos.App
         {
             if (await _api.IsLoggedInAsync())
             {
-                await GoToAsync("//MainPage");
+                await GoToAsync("//TodayPage");
             }
         }
     }

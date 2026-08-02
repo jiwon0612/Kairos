@@ -1,5 +1,6 @@
 ﻿using Kairos.Data;
 using Kairos.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Kairos.Services
 {
@@ -33,7 +34,7 @@ namespace Kairos.Services
 
         public List<Project> GetByUser(string userId)
         {
-            return _context.Projects.ToList().Where(p => p.UserID == userId).ToList();
+            return _context.Projects.Where(p => p.UserID == userId).Include(p => p.TodoItems).ToList();
         }
 
         public Project? GetByID(int id, string userId)

@@ -8,16 +8,22 @@
     Shell.FlyoutBehavior="Disabled"
     Title="Kairos.App">
 
-    <!-- 로그인 화면 (첫 화면) -->
+    <!-- 로그인 (탭 없이 단독) -->
     <ShellContent
         Title="로그인"
         ContentTemplate="{DataTemplate views:LoginPage}"
         Route="LoginPage" />
 
-    <!-- 메인 화면 -->
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <!-- 메인: 하단 탭 -->
+    <TabBar Route="Main">
+        <ShellContent
+            Title="오늘"
+            ContentTemplate="{DataTemplate views:TodayPage}"
+            Route="TodayPage" />
+        <ShellContent
+            Title="프로젝트"
+            ContentTemplate="{DataTemplate local:MainPage}"
+            Route="MainPage" />
+    </TabBar>
 
 </Shell>

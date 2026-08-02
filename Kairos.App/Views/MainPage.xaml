@@ -1,7 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Kairos.App.MainPage">
+             x:Class="Kairos.App.MainPage"
+             xmlns:conv="clr-namespace:Kairos.App.Converters">
+
+    <ContentPage.Resources>
+        <conv:TodayStarConverter x:Key="TodayStarConverter" />
+    </ContentPage.Resources>
+
     <VerticalStackLayout Padding="20" Spacing="15">
 
         <Label Text="내 프로젝트"
@@ -25,17 +31,41 @@
                 <DataTemplate>
                     <Grid Padding="10,8" ColumnSpacing="8">
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <Label Grid.Column="0"
+                        <Button Grid.Column="0"
+                                Text="{Binding IsToday, Converter={StaticResource TodayStarConverter}}"
+                                FontSize="18"
+                                BackgroundColor="Transparent"
+                                TextColor="Goldenrod"
+                                Padding="0"
+                                WidthRequest="40"
+                                Clicked="OnToggleToday" />
+
+                        <Label Grid.Column="1"
                                Text="{Binding Name}"
                                FontSize="18"
                                VerticalOptions="Center" />
 
-                        <Button Grid.Column="1"
+                        <Label Grid.Column="2"
+                                VerticalOptions="Center"
+                                FontSize="14"
+                                TextColor="Gray">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{Binding CompletedCount}" />
+                                    <Span Text="/" />
+                                    <Span Text="{Binding TotalCount}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+
+                        <Button Grid.Column="3"
                                 Text="수정"
                                 FontSize="12"
                                 Padding="10,0"
@@ -43,7 +73,7 @@
                                 BackgroundColor="SteelBlue"
                                 Clicked="OnEditProject" />
 
-                        <Button Grid.Column="2"
+                        <Button Grid.Column="4"
                                 Text="삭제"
                                 FontSize="12"
                                 Padding="10,0"

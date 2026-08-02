@@ -7,5 +7,7 @@
         public string? Description { get; set; }
         public DateTime CreateTime { get; set; }
         public bool IsToday { get; set; }
+        public int CompletedCount { get; set; }
+        public int TotalCount { get; set; }
     }
 }

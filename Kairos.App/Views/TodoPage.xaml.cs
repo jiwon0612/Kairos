@@ -46,10 +46,20 @@ namespace Kairos.App.Views
             var title = TitleEntry.Text;
             if (string.IsNullOrWhiteSpace(title))
                 return;
+
+            int priority = PriorityPicker.SelectedIndex switch
+            {
+                0 => 2, // 높음
+                1 => 1, // 보통
+                2 => 0, // 낮음
+                _ => 1, // 기본값은 보통
+            };
+
             try
             {
-                await _api.CreateTodoAsync(ProjectId, title);
+                await _api.CreateTodoAsync(ProjectId, title, priority);
                 TitleEntry.Text = string.Empty;
+                PriorityPicker.SelectedIndex = -1;
                 await LoadTodoAsync();
             }
             catch (Exception ex)
@@ -91,7 +101,7 @@ namespace Kairos.App.Views
 
                 try
                 {
-                    await _api.UpdateTodoAsync(todo.ID, newTitle);
+                    await _api.UpdateTodoAsync(todo.ID, newTitle, todo.Priority);
                     await LoadTodoAsync();
                 }
                 catch (Exception ex)
@@ -120,6 +130,39 @@ namespace Kairos.App.Views
                 catch (Exception ex)
                 {
                     await DisplayAlert("오류", $"삭제 실패: {ex.Message}", "확인");
+                }
+            }
+        }
+
+        private async void OnChangePriority(object sender, EventArgs e)
+        {
+            if (sender is Button btn && btn.BindingContext is TodoResponse todo)
+            {
+                string choice = await DisplayActionSheet(
+                    "우선순위 변경",
+                    "취소",
+                    null,
+                    "높음", "보통", "낮음");
+
+                int priority = choice switch
+                {
+                    "높음" => 2,
+                    "보통" => 1,
+                    "낮음" => 0,
+                    _ => -1
+                };
+
+                if (priority == -1 || priority == todo.Priority)
+                    return;
+
+                try
+                {
+                    await _api.UpdateTodoAsync(todo.ID, todo.Title, priority);
+                    await LoadTodoAsync();
+                }
+                catch (Exception ex)
+                {
+                    await DisplayAlert("오류", $"우선순위 변경 실패: {ex.Message}", "확인");
                 }
             }
         }

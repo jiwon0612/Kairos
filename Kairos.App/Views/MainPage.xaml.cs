@@ -118,5 +118,22 @@ namespace Kairos.App
             _api.Logout();
             await Shell.Current.GoToAsync("//LoginPage");
         }
+
+        private async void OnToggleToday(object sender, EventArgs e)
+        {
+            if (sender is Button btn && btn.BindingContext is ProjectResponse project)
+            {
+                try
+                {
+                    bool newValue = !project.IsToday;
+                    await _api.SetProjectTodayAsync(project.ID, newValue);
+                    await LoadProjectsAsync();
+                }
+                catch (Exception ex)
+                {
+                    await DisplayAlert("오류", $"변경 실패: {ex.Message}", "확인");
+                }
+            }
+        }
     }
 }

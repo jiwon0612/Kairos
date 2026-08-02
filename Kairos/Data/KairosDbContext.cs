@@ -11,5 +11,6 @@ namespace Kairos.Data
         }
         public DbSet<Models.Project> Projects { get; set; } = null!;
         public DbSet<Models.TodoItem> Todos { get; set; } = null!;
+        public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
     }
 }

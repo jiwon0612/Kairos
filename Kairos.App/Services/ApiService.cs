@@ -1,4 +1,5 @@
-﻿using Kairos.Shared.DTOs;
+﻿using Kairos.App.Handlers;
+using Kairos.Shared.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,10 +15,12 @@ namespace Kairos.App.Services
         //private const string BaseUrl = "https://localhost:7107";
         private const string BaseUrl = "http://192.168.219.104:5011";
         private const string TokenKey = "auth_token";
+        private const string RefreshTokenKey = "refresh_token";
 
         public ApiService()
         {
-            _http = new HttpClient { BaseAddress = new Uri(BaseUrl) };
+            var handler = new AuthHandler { InnerHandler = new HttpClientHandler() };
+            _http = new HttpClient(handler) { BaseAddress = new Uri(BaseUrl) };
         }
 
         private async Task SetAuthHeaderAsync()
@@ -35,6 +38,11 @@ namespace Kairos.App.Services
             await SecureStorage.SetAsync(TokenKey, token);
         }
 
+        private async Task SaveRefreshTokenAsync(string refreshToken)
+        {
+            await SecureStorage.SetAsync(RefreshTokenKey, refreshToken);
+        }
+
         public async Task<bool> IsLoggedInAsync()
         {
             var token = await SecureStorage.GetAsync(TokenKey);
@@ -44,6 +52,7 @@ namespace Kairos.App.Services
         public void Logout()
         {
             SecureStorage.Remove(TokenKey);
+            SecureStorage.Remove(RefreshTokenKey);
             _http.DefaultRequestHeaders.Authorization = null;
         }
 
@@ -67,72 +76,129 @@ namespace Kairos.App.Services
                 return false;
 
             await SaveTokenAsync(result.Token);
+            await SaveRefreshTokenAsync(result.RefreshToken);
+
             return true;
+        }
+
+        private async Task<bool> RefreshAsync()
+        {
+            var refreshToken = await SecureStorage.GetAsync(RefreshTokenKey);
+            if (string.IsNullOrEmpty(refreshToken))
+                return false;
+
+            var request = new RefreshRequest { RefreshToken = refreshToken };
+            var response = await _http.PostAsJsonAsync("/api/Auth/refresh", request);
+
+            if (!response.IsSuccessStatusCode)
+                return false;
+
+            var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
+            if (result == null || string.IsNullOrEmpty(result.Token))
+                return false;
+
+            await SaveTokenAsync(result.Token);
+            await SaveRefreshTokenAsync(result.RefreshToken);
+            return true;
+        }
+
+        private async Task<HttpResponseMessage> SendWithRefreshAsync(Func<Task<HttpResponseMessage>> requestFunc)
+        {
+            var response = await requestFunc();
+
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                var refreshed = await RefreshAsync();
+
+                if (refreshed)
+                {
+                    await SetAuthHeaderAsync();
+                    response = await requestFunc();
+                }
+            }
+
+            return response;
         }
 
         public async Task<List<ProjectResponse>> GetProjectsAsync()
         {
-            await SetAuthHeaderAsync();
+            //await SetAuthHeaderAsync();
             var result = await _http.GetFromJsonAsync<List<ProjectResponse>>("/api/Project");
             return result ?? new List<ProjectResponse>();
         }
 
         public async Task CreateProjectAsync(string name)
         {
-            await SetAuthHeaderAsync();
+            //await SetAuthHeaderAsync();
             var result = new CreateProjectRequest { Name = name };
             await _http.PostAsJsonAsync("/api/Project", result);
         }
 
         public async Task UpdateProjectAsync(int id, string name)
         {
-            await SetAuthHeaderAsync();
+            //await SetAuthHeaderAsync();
             var result = new CreateProjectRequest { Name = name };
             await _http.PutAsJsonAsync($"/api/Project/{id}", result);
         }
 
         public async Task DeleteProjectAsync(int id)
         {
-            await SetAuthHeaderAsync();
+            //await SetAuthHeaderAsync();
             await _http.DeleteAsync($"/api/Project/{id}");
         }
 
-        public async Task UpdateTodoAsync(int id, string title)
+        public async Task UpdateTodoAsync(int id, string title, int priority)
         {
-            await SetAuthHeaderAsync();
-            var result = new CreateTodoRequest { Title = title };
-            await _http.PutAsJsonAsync($"/api/Todo/{id}", result);
+            //await SetAuthHeaderAsync();
+            var result = new UpdateTodoRequest { Title = title, Priority = priority };
+            var response = await _http.PutAsJsonAsync($"/api/Todo/{id}", result);
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task DeleteTodoAsync(int id)
         {
-            await SetAuthHeaderAsync();
+            //await SetAuthHeaderAsync();
             await _http.DeleteAsync($"/api/Todo/{id}");
         }
 
         public async Task<List<TodoResponse>> GetTodosAsync()
         {
-            await SetAuthHeaderAsync();
+            //await SetAuthHeaderAsync();
             var result = await _http.GetFromJsonAsync<List<TodoResponse>>("/api/Todo");
             return result ?? new List<TodoResponse>();
         }
 
-        public async Task CreateTodoAsync(int projectId, string title)
+        public async Task CreateTodoAsync(int projectId, string title, int priority)
         {
-            await SetAuthHeaderAsync();
+            //await SetAuthHeaderAsync();
             var result = new CreateTodoRequest
             {
                 ProjectID = projectId,
-                Title = title
+                Title = title,
+                Priority = priority
             };
             await _http.PostAsJsonAsync("/api/Todo", result);
         }
 
-        public async Task SetCompletedAsync(int todoId,bool isCompleted)
+        public async Task SetCompletedAsync(int todoId, bool isCompleted)
         {
-            await SetAuthHeaderAsync();
+            //await SetAuthHeaderAsync();
             var result = new SetCompletedRequest { IsCompleted = isCompleted };
             await _http.PutAsJsonAsync($"/api/Todo/{todoId}/completed", result);
+        }
+
+        public async Task<List<TodoResponse>> GetTodayTodosAsync()
+        {
+            //await SetAuthHeaderAsync();
+            var result = await _http.GetFromJsonAsync<List<TodoResponse>>("/api/Todo/today");
+            return result ?? new List<TodoResponse>();
+        }
+
+        public async Task SetProjectTodayAsync(int id, bool isToday)
+        {
+            //await SetAuthHeaderAsync();
+            var result = new SetTodayRequest { IsToday = isToday };
+            await _http.PatchAsJsonAsync($"/api/Project/{id}/today", result);
         }
     }
 }
