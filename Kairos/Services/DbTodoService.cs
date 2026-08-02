@@ -67,8 +67,19 @@ namespace Kairos.Services
 
             data.Title = todoItem.Title;
             data.Description = todoItem.Description;
+            data.Priority = todoItem.Priority;
             _context.SaveChanges();
             return true;
+        }
+
+        public List<TodoItem> GetTodayTodos(string userId)
+        {
+            return _context.Todos
+                .Where(t => t.Project!.UserID == userId
+                && t.Project.IsToday
+                && !t.IsCompleted)
+                .OrderByDescending(t => t.Priority)
+                .ToList();
         }
     }
 }

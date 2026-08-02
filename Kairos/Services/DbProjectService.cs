@@ -52,5 +52,16 @@ namespace Kairos.Services
             _context.SaveChanges();
             return true;
         }
+
+        public bool SetToday(int id, string userId, bool isToday)
+        {
+            var data = _context.Projects.FirstOrDefault(p => p.ID == id && p.UserID == userId);
+            if (data == null)
+                return false;
+
+            data.IsToday = isToday;
+            _context.SaveChanges();
+            return true;
+        }
     }
 }

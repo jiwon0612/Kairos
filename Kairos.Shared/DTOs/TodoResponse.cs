@@ -10,6 +10,6 @@
         public DateTime CreatedTime { get; set; }
         public int ProjectID { get; set; }
 
-        
+        public int Priority { get; set; }
     }
 }

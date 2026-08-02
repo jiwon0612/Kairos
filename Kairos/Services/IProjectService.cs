@@ -9,5 +9,6 @@ namespace Kairos.Services
         Project Create(Project project);
         bool Update(int id, Project project, string userId);
         bool Delete(int id, string userId);
+        bool SetToday(int id, string userId, bool isToday);
     }
 }

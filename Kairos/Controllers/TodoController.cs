@@ -19,7 +19,8 @@ namespace Kairos.Controllers
                 IsCompleted = todoItem.IsCompleted,
                 CompletedTime = todoItem.CompletedTime,
                 CreatedTime = todoItem.CreatedTime,
-                ProjectID = todoItem.ProjectID
+                ProjectID = todoItem.ProjectID,
+                Priority = todoItem.Priority
             };
         }
     }
@@ -54,7 +55,8 @@ namespace Kairos.Controllers
             {
                 Title = request.Title,
                 Description = request.Description,
-                ProjectID = request.ProjectID
+                ProjectID = request.ProjectID,
+                Priority = request.Priority,
             };
             var createdTodo = _todoService.Create(todo);
             var response = new CreateTodoResponse { ID = createdTodo.ID };
@@ -112,6 +114,14 @@ namespace Kairos.Controllers
             if (!deleted)
                 return NotFound();
             return NoContent();
+        }
+
+        [HttpGet("today")]
+        public IActionResult GetToday()
+        {
+            var todos = _todoService.GetTodayTodos(GetUserId());
+            var response = todos.Select(TodoExtensions.FromEntity).ToList();
+            return Ok(response);
         }
     }
 }

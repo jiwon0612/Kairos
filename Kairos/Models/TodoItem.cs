@@ -8,6 +8,7 @@
         public bool IsCompleted { get; set; } = false;
         public DateTime CompletedTime { get; set; }
         public DateTime CreatedTime { get; set; }
+        public int Priority { get; set; } = 0;
         public int ProjectID { get; set; }
         public Project? Project { get; set; }
     }

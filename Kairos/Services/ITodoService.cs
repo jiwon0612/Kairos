@@ -10,5 +10,6 @@ namespace Kairos.Services
         bool Update(int id, TodoItem todoItem, string userId);
         bool SetCompleted(int id, bool isCompleted, string userId);
         bool Delete(int id, string userId);
+        List<TodoItem> GetTodayTodos(string userId);
     }
 }

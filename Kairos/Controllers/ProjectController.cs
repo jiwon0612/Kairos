@@ -17,7 +17,8 @@ namespace Kairos.Controllers
                 ID = project.ID,
                 Name = project.Name,
                 Description = project.Description,
-                CreateTime = project.CreatedTime
+                CreateTime = project.CreatedTime,
+                IsToday = project.IsToday
             };
         }
     }
@@ -92,6 +93,15 @@ namespace Kairos.Controllers
         {
             var deleted = _projectService.Delete(id, GetUserId());
             if (!deleted)
+                return NotFound();
+            return NoContent();
+        }
+
+        [HttpPatch("{id}/today")]
+        public IActionResult SetToday(int id, SetTodayRequest request)
+        {
+            var success = _projectService.SetToday(id,GetUserId(),request.IsToday);
+            if (!success)
                 return NotFound();
             return NoContent();
         }

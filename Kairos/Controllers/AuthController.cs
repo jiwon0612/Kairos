@@ -1,4 +1,5 @@
-﻿using Kairos.Api.Models;
+﻿using Google.Apis.Auth;
+using Kairos.Api.Models;
 using Kairos.Shared.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -53,6 +54,44 @@ namespace Kairos.Api.Controllers
             var valid = await _userManager.CheckPasswordAsync(user, request.Password);
             if (!valid)
                 return Unauthorized(new { message = "이메일 또는 비밀번호가 올바르지 않습니다." });
+
+            var token = GenerateJwtToken(user);
+            return Ok(new LoginResponse { Token = token });
+        }
+
+        [HttpPost("google")]
+        public async Task<IActionResult> GoogleLogin(GoogleLoginRequest request)
+        {
+            GoogleJsonWebSignature.Payload payload;
+
+            try
+            {
+                var settings = new GoogleJsonWebSignature.ValidationSettings()
+                {
+                    Audience = new List<string>() { _config["Google:ClientId"]! }
+                };
+                payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken, settings);
+            }
+            catch 
+            {
+                return Unauthorized(new { message = "유효하지 않은 Google 토큰입니다." });
+            }
+
+            var email = payload.Email;
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                user = new ApplicationUser
+                {
+                    UserName = email,
+                    Email = email,
+                    DisplayName = payload.Name
+                };
+                var result = await _userManager.CreateAsync(user);
+                if (!result.Succeeded)
+                    return BadRequest(new { message = "사용자 생성 실패" });
+            }
 
             var token = GenerateJwtToken(user);
             return Ok(new LoginResponse { Token = token });
