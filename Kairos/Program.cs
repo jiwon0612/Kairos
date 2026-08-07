@@ -71,9 +71,11 @@ namespace Kairos
                 var uri = new Uri(dataBaseUrl);
                 var userInfo = uri.UserInfo.Split(':');
 
+                var portValue = uri.Port == -1 ? 5432 : uri.Port;
+
                 var connectionString =
                     $"Host={uri.Host};" +
-                    $"Port={uri.Port};" +
+                    $"Port={portValue};" +
                     $"Database={uri.AbsolutePath.TrimStart('/')};" +
                     $"Username={userInfo[0]};" +
                     $"Password={userInfo[1]};" +
