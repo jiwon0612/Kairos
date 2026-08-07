@@ -6,8 +6,8 @@ WORKDIR /src
 COPY . .
 
 # API 프로젝트 복원 + 게시
-RUN dotnet restore "Kairos/Kairos/Kairos.Api.csproj"
-RUN dotnet publish "Kairos/Kairos/Kairos.Api.csproj" -c Release -o /app/publish
+RUN dotnet restore "Kairos/Kairos.Api.csproj"
+RUN dotnet publish "Kairos/Kairos.Api.csproj" -c Release -o /app/publish
 
 # 실행 단계
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
