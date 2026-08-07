@@ -12,6 +12,12 @@ namespace Kairos
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            var port = Environment.GetEnvironmentVariable("PORT");
+            if (!string.IsNullOrEmpty(port))
+            {
+                builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+            }
+
             // Add services to the container.
 
             builder.Services.AddControllers()
@@ -20,9 +26,6 @@ namespace Kairos
                     options.JsonSerializerOptions.ReferenceHandler =
                     System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
                 });
-
-            builder.Services.AddDbContext<Data.KairosDbContext>(options =>
-                options.UseNpgsql(builder.Configuration.GetConnectionString("KairosDb")));
 
             builder.Services.AddScoped<Services.IProjectService, Services.DbProjectService>();
             builder.Services.AddScoped<Services.ITodoService, Services.DbTodoService>();
@@ -57,6 +60,33 @@ namespace Kairos
         }
     });
             });
+
+            //builder.Services.AddDbContext<Data.KairosDbContext>(options =>
+            //    options.UseNpgsql(builder.Configuration.GetConnectionString("KairosDb")));
+
+            //배포 설정
+            var dataBaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+            if (!string.IsNullOrEmpty(dataBaseUrl))
+            {
+                var uri = new Uri(dataBaseUrl);
+                var userInfo = uri.UserInfo.Split(':');
+
+                var connectionString =
+                    $"Host={uri.Host};" +
+                    $"Port={uri.Port};" +
+                    $"Database={uri.AbsolutePath.TrimStart('/')};" +
+                    $"Username={userInfo[0]};" +
+                    $"Password={userInfo[1]};" +
+                    $"SSL Mode=Require;Trust Server Certificate=true";
+
+                builder.Services.AddDbContext<KairosDbContext>(options =>
+                    options.UseNpgsql(connectionString));
+            }
+            else
+            {
+                builder.Services.AddDbContext<KairosDbContext>(options =>
+                    options.UseNpgsql(builder.Configuration.GetConnectionString("KairosDb")));
+            }
 
             builder.Services.AddIdentityCore<ApplicationUser>(options =>
             {
