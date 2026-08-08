@@ -27,6 +27,10 @@
                 BackgroundColor="Transparent"
                 TextColor="Gray"
                 Clicked="OnRegisterClicked" />
+        <Button Text="구글로 로그인"
+            BackgroundColor="White"
+            TextColor="Black"
+            Clicked="OnGoogleLoginClicked" />
 
     </VerticalStackLayout>
 </ContentPage>

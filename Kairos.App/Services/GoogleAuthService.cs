@@ -13,7 +13,7 @@ namespace Kairos.App.Services
     internal class GoogleAuthService
     {
         private const string ClientId = "313140633739-5upd33vp2qj1ie38ti9g0suq797fb332.apps.googleusercontent.com";
-        private const string ClientSecret = "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_client_secret";
+        private const string ClientSecret = "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";
 
         private const string AuthEndpoint = "https://accounts.google.com/o/oauth2/v2/auth";
         private const string TokenEndpoint = "https://oauth2.googleapis.com/token";
@@ -50,6 +50,7 @@ namespace Kairos.App.Services
             string html = "<html><body>로그인 완료! 앱으로 돌아가세요.</body></html>";
             byte[] buffer = Encoding.UTF8.GetBytes(html);
             context.Response.ContentLength64 = buffer.Length;
+            context.Response.ContentType = "text/html; charset=utf-8";
             await context.Response.OutputStream.WriteAsync(buffer);
             context.Response.OutputStream.Close();
             listener.Stop();
