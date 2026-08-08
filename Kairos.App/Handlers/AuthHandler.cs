@@ -12,7 +12,7 @@ namespace Kairos.App.Handlers
     {
         private const string TokenKey = "auth_token";
         private const string RefreshTokenKey = "refresh_token";
-        private const string BaseUrl = "http://192.168.219.104:5011";
+        //private const string BaseUrl = "https://kairos-api-7b6v.onrender.com";
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
@@ -42,7 +42,7 @@ namespace Kairos.App.Handlers
             if (string.IsNullOrEmpty(refreshToken))
                 return false;
 
-            using var client = new HttpClient { BaseAddress = new Uri(BaseUrl) };
+            using var client = new HttpClient { BaseAddress = new Uri(AppConfig.BaseUrl) };
             var req = new RefreshRequest { RefreshToken = refreshToken };
             var response = await client.PostAsJsonAsync("/api/Auth/refresh", req);
 

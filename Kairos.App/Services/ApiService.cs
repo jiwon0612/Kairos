@@ -13,14 +13,15 @@ namespace Kairos.App.Services
     {
         private readonly HttpClient _http;
         //private const string BaseUrl = "https://localhost:7107";
-        private const string BaseUrl = "http://192.168.219.104:5011";
+        //private const string BaseUrl = "http://192.168.219.104:5011";
+        //private const string BaseUrl = "https://kairos-api-7b6v.onrender.com";
         private const string TokenKey = "auth_token";
         private const string RefreshTokenKey = "refresh_token";
 
         public ApiService()
         {
             var handler = new AuthHandler { InnerHandler = new HttpClientHandler() };
-            _http = new HttpClient(handler) { BaseAddress = new Uri(BaseUrl) };
+            _http = new HttpClient(handler) { BaseAddress = new Uri(AppConfig.BaseUrl) };
         }
 
         private async Task SetAuthHeaderAsync()
@@ -89,6 +90,23 @@ namespace Kairos.App.Services
 
             var request = new RefreshRequest { RefreshToken = refreshToken };
             var response = await _http.PostAsJsonAsync("/api/Auth/refresh", request);
+
+            if (!response.IsSuccessStatusCode)
+                return false;
+
+            var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
+            if (result == null || string.IsNullOrEmpty(result.Token))
+                return false;
+
+            await SaveTokenAsync(result.Token);
+            await SaveRefreshTokenAsync(result.RefreshToken);
+            return true;
+        }
+
+        public async Task<bool> GoogleLoginAsync(string idToken)
+        {
+            var request = new GoogleLoginRequest { IdToken = idToken };
+            var response = await _http.PostAsJsonAsync("/api/Auth/google", request);
 
             if (!response.IsSuccessStatusCode)
                 return false;

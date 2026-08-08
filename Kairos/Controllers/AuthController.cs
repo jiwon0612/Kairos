@@ -102,7 +102,8 @@ namespace Kairos.Api.Controllers
             }
 
             var token = GenerateJwtToken(user);
-            return Ok(new LoginResponse { Token = token });
+            var refreshToken = await CreateRefreshTokenAsync(user.Id);
+            return Ok(new LoginResponse { Token = token, RefreshToken = refreshToken });
         }
 
         [HttpPost("refresh")]
