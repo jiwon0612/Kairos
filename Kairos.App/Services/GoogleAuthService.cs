@@ -20,6 +20,44 @@ namespace Kairos.App.Services
 
         public async Task<string?> SignInAsync()
         {
+#if WINDOWS
+            return await SignInWindowAsync();
+#elif ANDROID
+            return await SignInAndroidAsync();
+#else
+            return null;
+#endif
+
+
+        }
+
+        private async Task<string?> SignInAndroidAsync()
+        {
+            const string androidClientId = "313140633739-nt3so9u1gpcp921o16veet4r2vfhet5h.apps.googleusercontent.com";
+            const string redirectUri = "com.googleusercontent.apps.313140633739-nt3so9u1gpcp921o16veet4r2vfhet5h://oauth2redirect";
+
+            string codeVerifier = GenerateCodeVerifier();
+            string codeChallenge = GenerateCodeChallenge(codeVerifier);
+
+            string authUrl =
+                $"{AuthEndpoint}?" +
+                $"client_id={androidClientId}&" +
+                $"redirect_uri={Uri.EscapeDataString(redirectUri)}&" +
+                $"response_type=code&" +
+                $"scope={Uri.EscapeDataString("openid email profile")}&" +
+                $"code_challenge={codeChallenge}&" +
+                $"code_challenge_method=S256";
+
+            var result = await Microsoft.Maui.Authentication.WebAuthenticator.Default.AuthenticateAsync(new Uri(authUrl), new Uri(redirectUri));
+
+            if (!result.Properties.TryGetValue("code", out string? code) || string.IsNullOrEmpty(code))
+                return null;
+
+            return await ExchangeCodeForIdTokenAndroidAsync(code, codeVerifier, redirectUri);
+        }
+
+        private async Task<string?> SignInWindowAsync()
+        {
             var listener = new HttpListener();
             int port = GetRandomUnusedPort();
             string redirectUri = $"http://localhost:{port}/";
@@ -83,6 +121,32 @@ namespace Kairos.App.Services
             using var doc = JsonDocument.Parse(json);
             return doc.RootElement.GetProperty("id_token").GetString();
         }
+
+        private async Task<string?> ExchangeCodeForIdTokenAndroidAsync(string code, string codeVerifier, string redirectUri)
+        {
+            using var http = new HttpClient();
+            var values = new Dictionary<string, string>
+            {
+                ["code"] = code,
+                ["client_id"] = "313140633739-nt3so9u1gpcp921o16veet4r2vfhet5h.apps.googleusercontent.com",
+                ["redirect_uri"] = redirectUri,
+                ["grant_type"] = "authorization_code",
+                ["code_verifier"] = codeVerifier
+            };
+
+            var response = await http.PostAsync(TokenEndpoint, new FormUrlEncodedContent(values));
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception($"토큰 교환 실패 : {error}");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(json);
+            return doc.RootElement.GetProperty("id_token").GetString();
+        }
+
 
         private int GetRandomUnusedPort()
         {

@@ -76,7 +76,7 @@ namespace Kairos.Api.Controllers
             {
                 var settings = new GoogleJsonWebSignature.ValidationSettings()
                 {
-                    Audience = new List<string>() { _config["Google:ClientId"]! }
+                    Audience = new List<string>() { _config["Google:ClientId"]!, _config["Google:AndroidClientId"]! }
                 };
                 payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken, settings);
             }
