@@ -20,7 +20,9 @@ namespace Kairos.Controllers
                 CompletedTime = todoItem.CompletedTime,
                 CreatedTime = todoItem.CreatedTime,
                 ProjectID = todoItem.ProjectID,
-                Priority = todoItem.Priority
+                Priority = todoItem.Priority,
+                DueDate = todoItem.DueDate,
+                HasDueTime = todoItem.HasDueTime
             };
         }
     }
@@ -57,6 +59,8 @@ namespace Kairos.Controllers
                 Description = request.Description,
                 ProjectID = request.ProjectID,
                 Priority = request.Priority,
+                DueDate = request.DueDate,
+                HasDueTime = request.HasDueTime
             };
             var createdTodo = _todoService.Create(todo);
             var response = new CreateTodoResponse { ID = createdTodo.ID };

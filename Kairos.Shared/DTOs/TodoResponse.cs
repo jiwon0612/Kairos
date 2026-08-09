@@ -11,5 +11,7 @@
         public int ProjectID { get; set; }
 
         public int Priority { get; set; }
+        public DateTime? DueDate { get; set; }
+        public bool HasDueTime { get; set; }
     }
 }

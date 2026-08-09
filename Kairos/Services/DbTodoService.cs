@@ -68,6 +68,8 @@ namespace Kairos.Services
             data.Title = todoItem.Title;
             data.Description = todoItem.Description;
             data.Priority = todoItem.Priority;
+            data.DueDate = todoItem.DueDate;
+            data.HasDueTime = todoItem.HasDueTime;
             _context.SaveChanges();
             return true;
         }

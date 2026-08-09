@@ -9,6 +9,8 @@
         public DateTime CompletedTime { get; set; }
         public DateTime CreatedTime { get; set; }
         public int Priority { get; set; } = 0;
+        public DateTime? DueDate { get; set; }
+        public bool HasDueTime { get; set; }
         public int ProjectID { get; set; }
         public Project? Project { get; set; }
     }
