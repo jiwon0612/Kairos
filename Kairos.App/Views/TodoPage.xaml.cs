@@ -1,7 +1,7 @@
 using Kairos.App.Services;
+using Kairos.App.ViewModels;
 using Kairos.Shared.DTOs;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 
 namespace Kairos.App.Views
 {
@@ -9,7 +9,7 @@ namespace Kairos.App.Views
     public partial class TodoPage : ContentPage
     {
         private readonly ApiService _api = new();
-        private readonly ObservableCollection<TodoResponse> _todos = new();
+        private readonly ObservableCollection<TodoViewModel> _todos = new();
 
         public int ProjectId { get; set; }
 
@@ -32,7 +32,7 @@ namespace Kairos.App.Views
                 var all = await _api.GetTodosAsync();
                 _todos.Clear();
                 foreach (var t in all.Where(t => t.ProjectID == ProjectId))
-                    _todos.Add(t);
+                    _todos.Add(new TodoViewModel(t));
 
             }
             catch (Exception ex)
@@ -55,11 +55,35 @@ namespace Kairos.App.Views
                 _ => 1, // 기본값은 보통
             };
 
+            DateTime? dueDate = null;
+            bool hasDueTime = false;
+
+            if (UseDueDateCheck.IsChecked)
+            {
+                var date = DuePicker.Date;
+                if (UseDueTimeCheck.IsChecked)
+                {
+                    var time = DueTimePicker.Time;
+                    var local = date.Date + time;
+                    dueDate = local.ToUniversalTime();
+                    hasDueTime = true;
+                }
+                else
+                {
+                    dueDate = DateTime.SpecifyKind(date.Date, DateTimeKind.Local).ToUniversalTime();
+                    hasDueTime = false;
+                }
+            }
+
             try
             {
-                await _api.CreateTodoAsync(ProjectId, title, priority);
+                await _api.CreateTodoAsync(ProjectId, title, priority, dueDate, hasDueTime);
                 TitleEntry.Text = string.Empty;
                 PriorityPicker.SelectedIndex = -1;
+
+                UseDueDateCheck.IsChecked = false;
+                UseDueTimeCheck.IsChecked = false;
+
                 await LoadTodoAsync();
             }
             catch (Exception ex)
@@ -70,7 +94,7 @@ namespace Kairos.App.Views
 
         private async void OnCheckChanged(object sender, CheckedChangedEventArgs e)
         {
-            if (sender is CheckBox checkbox && checkbox.BindingContext is TodoResponse todo)
+            if (sender is CheckBox checkbox && checkbox.BindingContext is TodoViewModel todo)
             {
                 if (todo.IsCompleted == e.Value)
                     return;
@@ -89,7 +113,7 @@ namespace Kairos.App.Views
 
         private async void OnEditTodo(object sender, EventArgs e)
         {
-            if (sender is Button item && item.BindingContext is TodoResponse todo)
+            if (sender is Button item && item.BindingContext is TodoViewModel todo)
             {
                 var newTitle = await DisplayPromptAsync(
                     "할 일 수정",
@@ -113,7 +137,7 @@ namespace Kairos.App.Views
 
         private async void OnDeleteTodo(object sender, EventArgs e)
         {
-            if (sender is Button item && item.BindingContext is TodoResponse todo)
+            if (sender is Button item && item.BindingContext is TodoViewModel todo)
             {
                 bool ok = await DisplayAlert(
                     "할 일 삭제",
@@ -136,7 +160,7 @@ namespace Kairos.App.Views
 
         private async void OnChangePriority(object sender, EventArgs e)
         {
-            if (sender is Button btn && btn.BindingContext is TodoResponse todo)
+            if (sender is Button btn && btn.BindingContext is TodoViewModel todo)
             {
                 string choice = await DisplayActionSheet(
                     "우선순위 변경",
@@ -165,6 +189,16 @@ namespace Kairos.App.Views
                     await DisplayAlert("오류", $"우선순위 변경 실패: {ex.Message}", "확인");
                 }
             }
+        }
+
+        private void OnUseDueDateChanged(object sender, CheckedChangedEventArgs e)
+        {
+            DueDateArea.IsVisible = e.Value;
+        }
+
+        private void OnUseDueTimeChanged(object sender, CheckedChangedEventArgs e)
+        {
+            DueTimePicker.IsVisible = e.Value;
         }
     }
 }

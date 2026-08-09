@@ -4,96 +4,118 @@
              x:Class="Kairos.App.Views.TodoPage"
              Title="할 일"
              xmlns:conv="clr-namespace:Kairos.App.Converters">
-
     <ContentPage.Resources>
         <conv:PriorityTextConverter x:Key="PriorityText" />
         <conv:PriorityColorConverter x:Key="PriorityColor" />
     </ContentPage.Resources>
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+            <Label x:Name="ProjectTitle"
+                   Text="프로젝트"
+                   FontSize="24"
+                   FontAttributes="Bold" />
+            <Grid ColumnSpacing="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Entry Grid.Column="0"
+                       x:Name="TitleEntry"
+                       Placeholder="새 할 일" />
+                <Picker Grid.Column="1"
+                        x:Name="PriorityPicker"
+                        Title="우선순위"
+                        WidthRequest="90">
+                    <Picker.Items>
+                        <x:String>높음</x:String>
+                        <x:String>보통</x:String>
+                        <x:String>낮음</x:String>
+                    </Picker.Items>
+                </Picker>
+                <Button Grid.Column="2"
+                        Text="추가"
+                        Clicked="OnAddClicked" />
+            </Grid>
 
-    <VerticalStackLayout Padding="20" Spacing="15">
+            <!-- 마감일 입력 -->
+            <VerticalStackLayout Spacing="8">
+                <HorizontalStackLayout Spacing="8">
+                    <CheckBox x:Name="UseDueDateCheck"
+                              CheckedChanged="OnUseDueDateChanged" />
+                    <Label Text="마감일 설정"
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
 
-        <Label x:Name="ProjectTitle"
-               Text="프로젝트"
-               FontSize="24"
-               FontAttributes="Bold" />
+                <VerticalStackLayout x:Name="DueDateArea"
+                                     IsVisible="False"
+                                     Spacing="8"
+                                     Padding="20,0,0,0">
+                    <DatePicker x:Name="DuePicker" />
 
-        <Grid ColumnSpacing="8">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+                    <HorizontalStackLayout Spacing="8">
+                        <CheckBox x:Name="UseDueTimeCheck"
+                                  CheckedChanged="OnUseDueTimeChanged" />
+                        <Label Text="시간도 지정"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
 
-            <Entry Grid.Column="0"
-           x:Name="TitleEntry"
-           Placeholder="새 할 일" />
+                    <TimePicker x:Name="DueTimePicker"
+                                IsVisible="False" />
+                </VerticalStackLayout>
+            </VerticalStackLayout>
 
-            <Picker Grid.Column="1"
-            x:Name="PriorityPicker"
-            Title="우선순위"
-            WidthRequest="90">
-                <Picker.Items>
-                    <x:String>높음</x:String>
-                    <x:String>보통</x:String>
-                    <x:String>낮음</x:String>
-                </Picker.Items>
-            </Picker>
-
-            <Button Grid.Column="2"
-            Text="추가"
-            Clicked="OnAddClicked" />
-        </Grid>
-
-        <CollectionView x:Name="TodoList">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Grid Padding="10,8" ColumnSpacing="8">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-
-                        <CheckBox Grid.Column="0"
-                  IsChecked="{Binding IsCompleted, Mode=OneWay}"
-                  CheckedChanged="OnCheckChanged" />
-
-                        <!-- 우선순위 뱃지 (탭하면 변경) -->
-                        <Button Grid.Column="1"
-                Text="{Binding Priority, Converter={StaticResource PriorityText}}"
-                TextColor="{Binding Priority, Converter={StaticResource PriorityColor}}"
-                FontSize="12"
-                FontAttributes="Bold"
-                BackgroundColor="Transparent"
-                Padding="6,0"
-                Clicked="OnChangePriority" />
-
-                        <Label Grid.Column="2"
-               Text="{Binding Title}"
-               FontSize="18"
-               VerticalOptions="Center" />
-
-                        <Button Grid.Column="3"
-                Text="수정"
-                FontSize="12"
-                Padding="10,0"
-                HeightRequest="36"
-                BackgroundColor="SteelBlue"
-                Clicked="OnEditTodo" />
-
-                        <Button Grid.Column="4"
-                Text="삭제"
-                FontSize="12"
-                Padding="10,0"
-                HeightRequest="36"
-                BackgroundColor="IndianRed"
-                Clicked="OnDeleteTodo" />
-                    </Grid>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-
-    </VerticalStackLayout>
+            <CollectionView x:Name="TodoList">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="10,8" ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <CheckBox Grid.Column="0"
+                                      IsChecked="{Binding IsCompleted, Mode=OneWay}"
+                                      CheckedChanged="OnCheckChanged" />
+                            <!-- 우선순위 뱃지 (탭하면 변경) -->
+                            <Button Grid.Column="1"
+                                    Text="{Binding Priority, Converter={StaticResource PriorityText}}"
+                                    TextColor="{Binding Priority, Converter={StaticResource PriorityColor}}"
+                                    FontSize="12"
+                                    FontAttributes="Bold"
+                                    BackgroundColor="Transparent"
+                                    Padding="6,0"
+                                    Clicked="OnChangePriority" />
+                            <!-- 제목 + 마감일 -->
+                            <VerticalStackLayout Grid.Column="2"
+                                                 VerticalOptions="Center"
+                                                 Spacing="2">
+                                <Label Text="{Binding Title}"
+                                       FontSize="18" />
+                                <Label Text="{Binding DueDateText}"
+                                       TextColor="{Binding DueDateColor}"
+                                       FontSize="12" />
+                            </VerticalStackLayout>
+                            <Button Grid.Column="3"
+                                    Text="수정"
+                                    FontSize="12"
+                                    Padding="10,0"
+                                    HeightRequest="36"
+                                    BackgroundColor="SteelBlue"
+                                    Clicked="OnEditTodo" />
+                            <Button Grid.Column="4"
+                                    Text="삭제"
+                                    FontSize="12"
+                                    Padding="10,0"
+                                    HeightRequest="36"
+                                    BackgroundColor="IndianRed"
+                                    Clicked="OnDeleteTodo" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

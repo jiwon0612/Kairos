@@ -22,6 +22,7 @@ namespace Kairos.App.Services
         {
             var handler = new AuthHandler { InnerHandler = new HttpClientHandler() };
             _http = new HttpClient(handler) { BaseAddress = new Uri(AppConfig.BaseUrl) };
+            bool test = TodayFilterSettings.UseStarred;
         }
 
         private async Task SetAuthHeaderAsync()
@@ -186,14 +187,16 @@ namespace Kairos.App.Services
             return result ?? new List<TodoResponse>();
         }
 
-        public async Task CreateTodoAsync(int projectId, string title, int priority)
+        public async Task CreateTodoAsync(int projectId, string title, int priority,DateTime? dueDate, bool hasDueTime)
         {
             //await SetAuthHeaderAsync();
             var result = new CreateTodoRequest
             {
                 ProjectID = projectId,
                 Title = title,
-                Priority = priority
+                Priority = priority,
+                DueDate = dueDate,
+                HasDueTime = hasDueTime
             };
             await _http.PostAsJsonAsync("/api/Todo", result);
         }
