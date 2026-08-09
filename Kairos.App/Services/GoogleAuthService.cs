@@ -34,7 +34,7 @@ namespace Kairos.App.Services
         private async Task<string?> SignInAndroidAsync()
         {
             const string androidClientId = "313140633739-nt3so9u1gpcp921o16veet4r2vfhet5h.apps.googleusercontent.com";
-            const string redirectUri = "com.googleusercontent.apps.313140633739-nt3so9u1gpcp921o16veet4r2vfhet5h://oauth2redirect";
+            const string redirectUri = "com.googleusercontent.apps.313140633739-nt3so9u1gpcp921o16veet4r2vfhet5h:/oauth2redirect";
 
             string codeVerifier = GenerateCodeVerifier();
             string codeChallenge = GenerateCodeChallenge(codeVerifier);

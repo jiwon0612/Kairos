@@ -10,14 +10,13 @@ namespace Kairos.App.Platforms.Android
 {
     [Activity(NoHistory = true, LaunchMode = LaunchMode.SingleTop, Exported = true)]
     [IntentFilter(
-        new[] { Android.Content.Intent.ActionView },
+        new[] { global::Android.Content.Intent.ActionView },
         Categories = new[]
         {
-            Android.Content.Intent.CategoryDefault,
-            Android.Content.Intent.CategoryBrowsable
+            global::Android.Content.Intent.CategoryDefault,
+            global::Android.Content.Intent.CategoryBrowsable
         },
-        DataScheme = "com.googleusercontent.apps.313140633739-nt3so9u1gpcp921o16veet4r2vfhet5h",
-        DataHost = "oauth2redirect")]
+        DataScheme = "com.googleusercontent.apps.313140633739-nt3so9u1gpcp921o16veet4r2vfhet5h")]
     public class WebAuthenticatorCallbackActivity : Microsoft.Maui.Authentication.WebAuthenticatorCallbackActivity
     {
     }
