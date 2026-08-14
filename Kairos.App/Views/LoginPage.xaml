@@ -72,6 +72,14 @@
                     Margin="0,8,0,0"
                     Clicked="OnLoginClicked" />
 
+            <!-- 로그인 버튼 아래에 -->
+            <ActivityIndicator x:Name="Loading"
+                   IsVisible="False"
+                   IsRunning="False"
+                   Color="{StaticResource KairosMint}"
+                   HeightRequest="36"
+                   Margin="0,8" />
+
             <!-- 구분선 -->
             <Grid ColumnDefinitions="*,Auto,*" Margin="0,8">
                 <BoxView Grid.Column="0"

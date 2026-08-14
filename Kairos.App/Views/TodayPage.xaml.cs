@@ -9,19 +9,22 @@ namespace Kairos.App.Views;
 public partial class TodayPage : ContentPage
 {
 	private readonly ApiService _api = new();
-	private readonly ObservableCollection<TodoViewModel> _todos = new();
+	private readonly ObservableCollection<TodoGroup> _groups = new();
+
+    public ObservableCollection<TodoGroup> Groups => _groups;
 
     public TodayPage()
 	{
 		InitializeComponent();
-		TodoList.ItemsSource = _todos;
+        //TodoList.ItemsSource = _groups;
+        BindingContext = this;
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        StarredCheck.IsChecked = TodayFilterSettings.UseStarred;
-        DueDateCheck.IsChecked = TodayFilterSettings.UseDueDate;
+        StarredCheck.IsToggled = TodayFilterSettings.UseStarred;
+        DueDateCheck.IsToggled = TodayFilterSettings.UseDueDate;
         DueBeforePicker.Date = TodayFilterSettings.DueBefore;
 
         await LoadTodayAsync();
@@ -31,14 +34,30 @@ public partial class TodayPage : ContentPage
     {
 		try
 		{
-            _todos.Clear();
+            Loading.IsVisible = true;
+            Loading.IsRunning = true;
+            EmptyView.IsVisible = false;
+
             if (!TodayFilterSettings.UseStarred && !TodayFilterSettings.UseDueDate)
             {
+                _groups.Clear();
+                EmptyView.IsVisible = true;
                 return;
             }
 
+            var projects = await _api.GetProjectsAsync();
+            var projectNames = projects.ToDictionary(p => p.ID, p => p.Name);
+
             var all = await _api.GetTodosAsync();
             IEnumerable<TodoResponse> filtered = all;
+
+            if (TodayFilterSettings.UseDueDate)
+            {
+                var limit = TodayFilterSettings.DueBefore.Date;
+                filtered = filtered.Where(t => 
+                t.DueDate != null && 
+                t.DueDate.Value.ToLocalTime().Date <= limit);
+            }
 
             if (TodayFilterSettings.UseStarred)
             {
@@ -47,27 +66,33 @@ public partial class TodayPage : ContentPage
                 filtered = filtered.Where(t => starredIds.Contains(t.ID));
             }
 
-            if (TodayFilterSettings.UseDueDate)
-            {
-                var limit = TodayFilterSettings.DueBefore.Date;
-                filtered = filtered.Where(t => t.DueDate != null && t.DueDate.Value.ToLocalTime().Date <= limit);
-            }
+            var grouped = filtered
+                .GroupBy(t => t.ProjectID)
+                .Select(g => new TodoGroup(projectNames.TryGetValue(g.Key, out var name) ? name : "기타", g.OrderByDescending(t => t.Priority)
+                .Select(t => new TodoViewModel(t))
+                ));
 
-            var todos = filtered.OrderByDescending(t => t.Priority).ToList();
+            _groups.Clear();
+            foreach (var group in grouped)
+                _groups.Add(group);
 
-            foreach (var todo in todos)
-                _todos.Add(new TodoViewModel(todo));
+            EmptyView.IsVisible = _groups.Count == 0;
         }
 		catch (Exception ex)
 		{
             await DisplayAlert("오류", $"불러오기 실패: {ex.Message}", "확인");
         }
+        finally
+        {
+            Loading.IsVisible = false;
+            Loading.IsRunning = false;
+        }
     }
 
     private async void OnFilterChanged(object sender, EventArgs e)
     {
-        TodayFilterSettings.UseStarred = StarredCheck.IsChecked;
-        TodayFilterSettings.UseDueDate = DueDateCheck.IsChecked;
+        TodayFilterSettings.UseStarred = StarredCheck.IsToggled;
+        TodayFilterSettings.UseDueDate = DueDateCheck.IsToggled;
 
         await LoadTodayAsync();
     }
@@ -76,5 +101,25 @@ public partial class TodayPage : ContentPage
     {
         TodayFilterSettings.DueBefore = DueBeforePicker.Date;
         await LoadTodayAsync();
+    }
+
+    private async void OnCheckChanged(object sender, CheckedChangedEventArgs e)
+    {
+        if (sender is CheckBox cb && cb.BindingContext is TodoViewModel todo)
+        {
+            if (todo.IsCompleted == e.Value)
+                return;
+
+            try
+            {
+                await _api.SetCompletedAsync(todo.ID, e.Value);
+                todo.IsCompleted = e.Value;
+                await LoadTodayAsync();
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("오류", $"변경 실패: {ex.Message}", "확인");
+            }
+        }
     }
 }

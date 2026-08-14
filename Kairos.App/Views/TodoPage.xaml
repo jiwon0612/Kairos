@@ -3,119 +3,186 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Kairos.App.Views.TodoPage"
              Title="할 일"
+             BackgroundColor="{StaticResource KairosBackground}"
              xmlns:conv="clr-namespace:Kairos.App.Converters">
     <ContentPage.Resources>
-        <conv:PriorityTextConverter x:Key="PriorityText" />
         <conv:PriorityColorConverter x:Key="PriorityColor" />
     </ContentPage.Resources>
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="15">
+        <VerticalStackLayout Padding="20" Spacing="16">
+
+            <!-- 프로젝트 제목 -->
             <Label x:Name="ProjectTitle"
                    Text="프로젝트"
-                   FontSize="24"
-                   FontAttributes="Bold" />
-            <Grid ColumnSpacing="8">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <Entry Grid.Column="0"
-                       x:Name="TitleEntry"
-                       Placeholder="새 할 일" />
-                <Picker Grid.Column="1"
-                        x:Name="PriorityPicker"
-                        Title="우선순위"
-                        WidthRequest="90">
-                    <Picker.Items>
-                        <x:String>높음</x:String>
-                        <x:String>보통</x:String>
-                        <x:String>낮음</x:String>
-                    </Picker.Items>
-                </Picker>
-                <Button Grid.Column="2"
-                        Text="추가"
-                        Clicked="OnAddClicked" />
-            </Grid>
+                   Style="{StaticResource KairosTitle}"
+                   Margin="4,8,4,0" />
 
-            <!-- 마감일 입력 -->
-            <VerticalStackLayout Spacing="8">
-                <HorizontalStackLayout Spacing="8">
-                    <CheckBox x:Name="UseDueDateCheck"
-                              CheckedChanged="OnUseDueDateChanged" />
-                    <Label Text="마감일 설정"
-                           VerticalOptions="Center" />
-                </HorizontalStackLayout>
+            <!-- 할 일 추가 카드 -->
+            <Border Style="{StaticResource KairosCard}" Padding="16">
+                <VerticalStackLayout Spacing="14">
 
-                <VerticalStackLayout x:Name="DueDateArea"
-                                     IsVisible="False"
-                                     Spacing="8"
-                                     Padding="20,0,0,0">
-                    <DatePicker x:Name="DuePicker" />
+                    <!-- 제목 입력 -->
+                    <Border BackgroundColor="{StaticResource KairosSurfaceAlt}"
+                            Stroke="Transparent"
+                            StrokeShape="RoundRectangle 10"
+                            Padding="0">
+                        <Entry x:Name="TitleEntry"
+                               Placeholder="새 할 일"
+                               BackgroundColor="Transparent"
+                               TextColor="{StaticResource KairosText}"
+                               PlaceholderColor="{StaticResource KairosTextFaint}"
+                               Margin="14,2" />
+                    </Border>
 
-                    <HorizontalStackLayout Spacing="8">
-                        <CheckBox x:Name="UseDueTimeCheck"
-                                  CheckedChanged="OnUseDueTimeChanged" />
-                        <Label Text="시간도 지정"
+                    <!-- 우선순위 세그먼트 -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="우선순위"
+                               FontSize="13"
+                               TextColor="{StaticResource KairosTextSub}" />
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                            <Button Grid.Column="0"
+                                    x:Name="PriHigh"
+                                    Text="높음"
+                                    FontSize="14"
+                                    BackgroundColor="{StaticResource KairosSurfaceAlt}"
+                                    TextColor="{StaticResource KairosTextSub}"
+                                    CornerRadius="10"
+                                    HeightRequest="42"
+                                    Clicked="OnSelectPriority"
+                                    CommandParameter="2" />
+                            <Button Grid.Column="1"
+                                    x:Name="PriMid"
+                                    Text="보통"
+                                    FontSize="14"
+                                    BackgroundColor="{StaticResource KairosMint}"
+                                    TextColor="{StaticResource KairosBackground}"
+                                    FontAttributes="Bold"
+                                    CornerRadius="10"
+                                    HeightRequest="42"
+                                    Clicked="OnSelectPriority"
+                                    CommandParameter="1" />
+                            <Button Grid.Column="2"
+                                    x:Name="PriLow"
+                                    Text="낮음"
+                                    FontSize="14"
+                                    BackgroundColor="{StaticResource KairosSurfaceAlt}"
+                                    TextColor="{StaticResource KairosTextSub}"
+                                    CornerRadius="10"
+                                    HeightRequest="42"
+                                    Clicked="OnSelectPriority"
+                                    CommandParameter="0" />
+                        </Grid>
+                    </VerticalStackLayout>
+
+                    <!-- 마감일 -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0"
+                               Text="마감일 설정"
+                               FontSize="15"
+                               TextColor="{StaticResource KairosText}"
                                VerticalOptions="Center" />
-                    </HorizontalStackLayout>
+                        <Switch Grid.Column="1"
+                                x:Name="UseDueDateCheck"
+                                OnColor="{StaticResource KairosMint}"
+                                ThumbColor="{StaticResource KairosText}"
+                                Toggled="OnUseDueDateChanged" />
+                    </Grid>
 
-                    <TimePicker x:Name="DueTimePicker"
-                                IsVisible="False" />
+                    <VerticalStackLayout x:Name="DueDateArea"
+                                         IsVisible="False"
+                                         Spacing="10">
+                        <DatePicker x:Name="DuePicker"
+                                    TextColor="{StaticResource KairosText}" />
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Grid.Column="0"
+                                   Text="시간도 지정"
+                                   FontSize="15"
+                                   TextColor="{StaticResource KairosText}"
+                                   VerticalOptions="Center" />
+                            <Switch Grid.Column="1"
+                                    x:Name="UseDueTimeCheck"
+                                    OnColor="{StaticResource KairosMint}"
+                                    ThumbColor="{StaticResource KairosText}"
+                                    Toggled="OnUseDueTimeChanged" />
+                        </Grid>
+                        <TimePicker x:Name="DueTimePicker"
+                                    IsVisible="False"
+                                    TextColor="{StaticResource KairosText}" />
+                    </VerticalStackLayout>
+
+                    <!-- 추가 버튼 -->
+                    <Button Text="추가하기"
+                            Style="{StaticResource KairosButtonPrimary}"
+                            Clicked="OnAddClicked" />
+
                 </VerticalStackLayout>
-            </VerticalStackLayout>
+            </Border>
 
+            <!-- 할 일 목록 -->
             <CollectionView x:Name="TodoList">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Grid Padding="10,8" ColumnSpacing="8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <CheckBox Grid.Column="0"
-                                      IsChecked="{Binding IsCompleted, Mode=OneWay}"
-                                      CheckedChanged="OnCheckChanged" />
-                            <!-- 우선순위 뱃지 (탭하면 변경) -->
-                            <Button Grid.Column="1"
-                                    Text="{Binding Priority, Converter={StaticResource PriorityText}}"
-                                    TextColor="{Binding Priority, Converter={StaticResource PriorityColor}}"
-                                    FontSize="12"
-                                    FontAttributes="Bold"
-                                    BackgroundColor="Transparent"
-                                    Padding="6,0"
-                                    Clicked="OnChangePriority" />
-                            <!-- 제목 + 마감일 -->
-                            <VerticalStackLayout Grid.Column="2"
-                                                 VerticalOptions="Center"
-                                                 Spacing="2">
-                                <Label Text="{Binding Title}"
-                                       FontSize="18" />
-                                <Label Text="{Binding DueDateText}"
-                                       TextColor="{Binding DueDateColor}"
-                                       FontSize="12" />
-                            </VerticalStackLayout>
-                            <Button Grid.Column="3"
-                                    Text="수정"
-                                    FontSize="12"
-                                    Padding="10,0"
-                                    HeightRequest="36"
-                                    BackgroundColor="SteelBlue"
-                                    Clicked="OnEditTodo" />
-                            <Button Grid.Column="4"
-                                    Text="삭제"
-                                    FontSize="12"
-                                    Padding="10,0"
-                                    HeightRequest="36"
-                                    BackgroundColor="IndianRed"
-                                    Clicked="OnDeleteTodo" />
-                        </Grid>
+                        <Border Style="{StaticResource KairosCard}"
+                                Padding="16,14"
+                                Margin="0,0,0,8">
+                            <Grid ColumnSpacing="12"
+                                  ColumnDefinitions="Auto,Auto,*,Auto,Auto">
+                                <!-- 완료 체크 -->
+                                <CheckBox Grid.Column="0"
+                                          IsChecked="{Binding IsCompleted, Mode=OneWay}"
+                                          Color="{StaticResource KairosMint}"
+                                          VerticalOptions="Center"
+                                          CheckedChanged="OnCheckChanged" />
+                                <!-- 우선순위 점 (탭하면 변경) -->
+                                <Ellipse Grid.Column="1"
+                                         Fill="{Binding Priority, Converter={StaticResource PriorityColor}}"
+                                         WidthRequest="10"
+                                         HeightRequest="10"
+                                         VerticalOptions="Center">
+                                    <Ellipse.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnChangePriority" />
+                                    </Ellipse.GestureRecognizers>
+                                </Ellipse>
+                                <!-- 제목 + 마감일 -->
+                                <VerticalStackLayout Grid.Column="2"
+                                                     VerticalOptions="Center"
+                                                     Spacing="3">
+                                    <Label Text="{Binding Title}"
+                                           FontSize="16"
+                                           TextColor="{Binding TitleColor}" 
+                                           TextDecorations="{Binding TitleDecoration}"/>
+                                    <Label Text="{Binding DueDateText}"
+                                           TextColor="{Binding DueDateColor}"
+                                           FontSize="12" />
+                                </VerticalStackLayout>
+                                <!-- 수정 -->
+                                <Button Grid.Column="3"
+                                        Text="수정"
+                                        FontSize="12"
+                                        Padding="10,0"
+                                        HeightRequest="34"
+                                        BackgroundColor="{StaticResource KairosSurfaceAlt}"
+                                        TextColor="{StaticResource KairosTextSub}"
+                                        CornerRadius="9"
+                                        VerticalOptions="Center"
+                                        Clicked="OnEditTodo" />
+                                <!-- 삭제 -->
+                                <Button Grid.Column="4"
+                                        Text="삭제"
+                                        FontSize="12"
+                                        Padding="10,0"
+                                        HeightRequest="34"
+                                        BackgroundColor="Transparent"
+                                        TextColor="{StaticResource KairosUrgent}"
+                                        CornerRadius="9"
+                                        VerticalOptions="Center"
+                                        Clicked="OnDeleteTodo" />
+                            </Grid>
+                        </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

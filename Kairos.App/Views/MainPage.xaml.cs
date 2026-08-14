@@ -25,16 +25,26 @@ namespace Kairos.App
         {
             try
             {
+                Loading.IsVisible = true;
+                Loading.IsRunning = true;
+                EmptyView.IsVisible = false;
+
                 var projects = await _api.GetProjectsAsync();
                 _projects.Clear();
                 foreach (var project in projects)
                 {
                     _projects.Add(project);
                 }
+                EmptyView.IsVisible = _projects.Count == 0;
             }
             catch (Exception ex)
             {
                 await DisplayAlert("오류", $"프로젝트 불러오기 실패: {ex.Message}", "확인");
+            }
+            finally
+            {
+                Loading.IsVisible = false;
+                Loading.IsRunning = false;
             }
         }
 

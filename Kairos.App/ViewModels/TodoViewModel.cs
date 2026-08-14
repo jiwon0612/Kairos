@@ -1,13 +1,15 @@
 ﻿using Kairos.Shared.DTOs;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Kairos.App.ViewModels
 {
-    public class TodoViewModel
+    public class TodoViewModel : INotifyPropertyChanged
     {
         private readonly TodoResponse _todo;
 
@@ -21,7 +23,14 @@ namespace Kairos.App.ViewModels
         public bool IsCompleted
         {
             get => _todo.IsCompleted;
-            set => _todo.IsCompleted = value;
+            set
+            {
+                if (_todo.IsCompleted == value) return;
+                _todo.IsCompleted = value;
+                OnPropertyChanged();                        // 알림
+                OnPropertyChanged(nameof(TitleDecoration)); // 이것도 바뀜
+                OnPropertyChanged(nameof(TitleColor));      // 이것도
+            }
         }
         public int Priority => _todo.Priority;
         public DateTime? DueDate => _todo.DueDate;
@@ -81,5 +90,15 @@ namespace Kairos.App.ViewModels
                 };
             }
         }
+
+        public TextDecorations TitleDecoration
+            => IsCompleted ? TextDecorations.Strikethrough : TextDecorations.None;
+
+        public Color TitleColor 
+            => IsCompleted ? Color.FromArgb("#5A6270") : Color.FromArgb("#E8EBF0");
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }

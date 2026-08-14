@@ -3,66 +3,147 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Kairos.App.Views.TodayPage"
              Title="오늘"
+             BackgroundColor="{StaticResource KairosBackground}"
              xmlns:conv="clr-namespace:Kairos.App.Converters">
-
     <ContentPage.Resources>
-        <conv:PriorityTextConverter x:Key="PriorityText" />
         <conv:PriorityColorConverter x:Key="PriorityColor" />
     </ContentPage.Resources>
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="16">
 
-    <VerticalStackLayout Padding="20" Spacing="15">
+            <Label Text="오늘 할 일"
+                   Style="{StaticResource KairosTitle}"
+                   Margin="4,8,4,0" />
 
-        <Label Text="오늘 할 일"
-               FontSize="28"
-               FontAttributes="Bold" />
-
-        <VerticalStackLayout Spacing="8">
-            <!-- 별표 조건 -->
-            <HorizontalStackLayout Spacing="8">
-                <CheckBox x:Name="StarredCheck"
-                  CheckedChanged="OnFilterChanged" />
-                <Label Text="별표 프로젝트"
-               VerticalOptions="Center" />
-            </HorizontalStackLayout>
-
-            <!-- 마감 조건 -->
-            <HorizontalStackLayout Spacing="8">
-                <CheckBox x:Name="DueDateCheck"
-                  CheckedChanged="OnFilterChanged" />
-                <Label Text="마감일 기준"
-               VerticalOptions="Center" />
-                <DatePicker x:Name="DueBeforePicker"
-                    DateSelected="OnDueBeforeChanged" />
-            </HorizontalStackLayout>
-        </VerticalStackLayout>
-
-        <CollectionView x:Name="TodoList">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Grid Padding="10,8" ColumnSpacing="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
-                        <!-- 우선순위 뱃지 -->
+            <ActivityIndicator x:Name="Loading"
+                   IsVisible="False"
+                   IsRunning="False"
+                   Color="{StaticResource KairosMint}"
+                   HeightRequest="40"
+                   Margin="0,20" />
+            
+            <!-- 필터 카드 -->
+            <Border Style="{StaticResource KairosCard}" Padding="18,4">
+                <VerticalStackLayout>
+                    <Grid ColumnDefinitions="*,Auto" Padding="0,14">
                         <Label Grid.Column="0"
-                   Text="{Binding Priority, Converter={StaticResource PriorityText}}"
-                   TextColor="{Binding Priority, Converter={StaticResource PriorityColor}}"
-                   FontAttributes="Bold"
-                   FontSize="14"
-                   VerticalOptions="Center" />
-
-                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                            <Label Text="{Binding Title}" FontSize="18" />
-                            <Label Text="{Binding DueDateText}"
-           TextColor="{Binding DueDateColor}"
-           FontSize="12" />
-                        </VerticalStackLayout>
+                               Text="별표 프로젝트"
+                               FontSize="16"
+                               TextColor="{StaticResource KairosText}"
+                               VerticalOptions="Center" />
+                        <Switch Grid.Column="1"
+                                x:Name="StarredCheck"
+                                OnColor="{StaticResource KairosMint}"
+                                ThumbColor="{StaticResource KairosText}"
+                                Toggled="OnFilterChanged" />
                     </Grid>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
 
-    </VerticalStackLayout>
+                    <BoxView HeightRequest="1"
+                             Color="{StaticResource KairosDivider}" />
+
+                    <Grid ColumnDefinitions="Auto,*,Auto" Padding="0,14">
+                        <Label Grid.Column="0"
+                               Text="마감일 기준"
+                               FontSize="16"
+                               TextColor="{StaticResource KairosText}"
+                               VerticalOptions="Center" />
+                        <Switch Grid.Column="1"
+                                x:Name="DueDateCheck"
+                                HorizontalOptions="Start"
+                                Margin="12,0,0,0"
+                                OnColor="{StaticResource KairosMint}"
+                                ThumbColor="{StaticResource KairosText}"
+                                Toggled="OnFilterChanged" />
+                        <DatePicker Grid.Column="2"
+                                    x:Name="DueBeforePicker"
+                                    TextColor="{StaticResource KairosMint}"
+                                    FontSize="14"
+                                    DateSelected="OnDueBeforeChanged" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- 프로젝트별 그룹 (BindableLayout, Windows 안정) -->
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Groups}"
+                                 Spacing="4">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate>
+                        <VerticalStackLayout Spacing="8" Margin="0,0,0,8">
+                            <!-- 프로젝트 헤더 -->
+                            <Grid Padding="4,12,4,2" ColumnSpacing="8"
+                                  ColumnDefinitions="Auto,*">
+                                <Label Grid.Column="0"
+                                       Text="▸"
+                                       FontSize="12"
+                                       TextColor="{StaticResource KairosMint}"
+                                       VerticalOptions="Center" />
+                                <Label Grid.Column="1"
+                                       Text="{Binding ProjectName}"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource KairosTextSub}"
+                                       VerticalOptions="Center" />
+                            </Grid>
+
+                            <!-- 그 프로젝트의 할 일들 -->
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding .}"
+                                                 Spacing="8">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Style="{StaticResource KairosCard}"
+                                                Padding="16,14">
+                                            <Grid ColumnSpacing="12"
+                                                  ColumnDefinitions="Auto,Auto,*">
+                                                <CheckBox Grid.Column="0"
+                                                          IsChecked="{Binding IsCompleted, Mode=OneWay}"
+                                                          Color="{StaticResource KairosMint}"
+                                                          VerticalOptions="Center"
+                                                          CheckedChanged="OnCheckChanged" />
+                                                <Ellipse Grid.Column="1"
+                                                         Fill="{Binding Priority, Converter={StaticResource PriorityColor}}"
+                                                         WidthRequest="8"
+                                                         HeightRequest="8"
+                                                         VerticalOptions="Center" />
+                                                <VerticalStackLayout Grid.Column="2"
+                                                                     VerticalOptions="Center"
+                                                                     Spacing="3">
+                                                    <Label Text="{Binding Title}"
+                                                           FontSize="16"
+                                                           TextColor="{Binding TitleColor}"
+                                                           TextDecorations="{Binding TitleDecoration}"/>
+                                                    <Label Text="{Binding DueDateText}"
+                                                           TextColor="{Binding DueDateColor}"
+                                                           FontSize="12" />
+                                                </VerticalStackLayout>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <!-- 빈 목록 안내 -->
+            <VerticalStackLayout x:Name="EmptyView"
+                     IsVisible="False"
+                     Padding="20,60"
+                     HorizontalOptions="Center"
+                     Spacing="8">
+                <Label Text="🌙"
+           FontSize="48"
+           HorizontalOptions="Center" />
+                <Label Text="표시할 할 일이 없어요"
+           FontSize="16"
+           TextColor="{StaticResource KairosTextSub}"
+           HorizontalOptions="Center" />
+                <Label Text="필터를 켜거나 할 일을 추가해보세요"
+           FontSize="13"
+           TextColor="{StaticResource KairosTextFaint}"
+           HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

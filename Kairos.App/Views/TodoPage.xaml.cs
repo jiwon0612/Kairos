@@ -13,6 +13,8 @@ namespace Kairos.App.Views
 
         public int ProjectId { get; set; }
 
+        private int _selectedPriority = 1;
+
         public TodoPage()
         {
             InitializeComponent();
@@ -41,27 +43,54 @@ namespace Kairos.App.Views
             }
         }
 
+        private void OnSelectPriority(object sender, EventArgs e)
+        {
+            if (sender is Button btn && btn.CommandParameter is string p)
+            {
+                _selectedPriority = int.Parse(p);
+
+                UpdatePriorityButtons();
+            }
+        }
+
+        private void UpdatePriorityButtons()
+        {
+            // 다 회색으로
+            PriHigh.BackgroundColor = Color.FromArgb("#1A1C21");
+            PriHigh.TextColor = Color.FromArgb("#8894A5");
+            PriMid.BackgroundColor = Color.FromArgb("#1A1C21");
+            PriMid.TextColor = Color.FromArgb("#8894A5");
+            PriLow.BackgroundColor = Color.FromArgb("#1A1C21");
+            PriLow.TextColor = Color.FromArgb("#8894A5");
+
+            // 선택된 것만 민트
+            Button selected = _selectedPriority switch
+            {
+                2 => PriHigh,
+                1 => PriMid,
+                0 => PriLow,
+                _ => PriMid
+            };
+            selected.BackgroundColor = Color.FromArgb("#5EEAD4");
+            selected.TextColor = Color.FromArgb("#16181D");
+            selected.FontAttributes = FontAttributes.Bold;
+        }
+
         private async void OnAddClicked(object sender, EventArgs e)
         {
             var title = TitleEntry.Text;
             if (string.IsNullOrWhiteSpace(title))
                 return;
 
-            int priority = PriorityPicker.SelectedIndex switch
-            {
-                0 => 2, // 높음
-                1 => 1, // 보통
-                2 => 0, // 낮음
-                _ => 1, // 기본값은 보통
-            };
+            int priority = _selectedPriority;
 
             DateTime? dueDate = null;
             bool hasDueTime = false;
 
-            if (UseDueDateCheck.IsChecked)
+            if (UseDueDateCheck.IsToggled)
             {
                 var date = DuePicker.Date;
-                if (UseDueTimeCheck.IsChecked)
+                if (UseDueTimeCheck.IsToggled)
                 {
                     var time = DueTimePicker.Time;
                     var local = date.Date + time;
@@ -79,10 +108,12 @@ namespace Kairos.App.Views
             {
                 await _api.CreateTodoAsync(ProjectId, title, priority, dueDate, hasDueTime);
                 TitleEntry.Text = string.Empty;
-                PriorityPicker.SelectedIndex = -1;
+                
+                _selectedPriority = 1;
+                UpdatePriorityButtons();
 
-                UseDueDateCheck.IsChecked = false;
-                UseDueTimeCheck.IsChecked = false;
+                UseDueDateCheck.IsToggled = false;
+                UseDueTimeCheck.IsToggled = false;
 
                 await LoadTodoAsync();
             }
@@ -160,7 +191,7 @@ namespace Kairos.App.Views
 
         private async void OnChangePriority(object sender, EventArgs e)
         {
-            if (sender is Button btn && btn.BindingContext is TodoViewModel todo)
+            if (sender is Element btn && btn.BindingContext is TodoViewModel todo)
             {
                 string choice = await DisplayActionSheet(
                     "우선순위 변경",
@@ -191,12 +222,12 @@ namespace Kairos.App.Views
             }
         }
 
-        private void OnUseDueDateChanged(object sender, CheckedChangedEventArgs e)
+        private void OnUseDueDateChanged(object sender, ToggledEventArgs e)
         {
             DueDateArea.IsVisible = e.Value;
         }
 
-        private void OnUseDueTimeChanged(object sender, CheckedChangedEventArgs e)
+        private void OnUseDueTimeChanged(object sender, ToggledEventArgs e)
         {
             DueTimePicker.IsVisible = e.Value;
         }

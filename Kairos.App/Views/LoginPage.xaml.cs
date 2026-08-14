@@ -1,4 +1,5 @@
 using Kairos.App.Services;
+using System.Runtime.CompilerServices;
 
 namespace Kairos.App.Views
 {
@@ -24,6 +25,10 @@ namespace Kairos.App.Views
 
             try
             {
+                Loading.IsVisible = true;
+                Loading.IsRunning = true;
+                this.IsEnabled = false;
+
                 var success = await _api.LoginAsync(email, password);
                 if (success)
                 {
@@ -37,6 +42,12 @@ namespace Kairos.App.Views
             catch (Exception ex)
             {
                 await DisplayAlert("오류", $"로그인 중 오류 발생: {ex.Message}", "확인");
+            }
+            finally
+            {
+                Loading.IsVisible = false;
+                Loading.IsRunning = false;
+                this.IsEnabled = true;
             }
         }
 
@@ -53,6 +64,10 @@ namespace Kairos.App.Views
 
             try
             {
+                Loading.IsVisible = true;
+                Loading.IsRunning = true;
+                this.IsEnabled = false;
+
                 var succes = await _api.RegisterAsync(email, password);
                 if (succes)
                 {
@@ -67,12 +82,22 @@ namespace Kairos.App.Views
             {
                 await DisplayAlert("오류", $"회원가입 중 오류 발생: {ex.Message}", "확인");
             }
+            finally
+            {
+                Loading.IsVisible = false;
+                Loading.IsRunning = false;
+                this.IsEnabled = true;
+            }
         }
 
         private async void OnGoogleLoginClicked(object sender, EventArgs e)
         {
             try
             {
+                Loading.IsVisible = true;
+                Loading.IsRunning = true;
+                this.IsEnabled = false;
+
                 var idToken = await _googleAuthService.SignInAsync();
                 if (string.IsNullOrEmpty(idToken))
                 {
@@ -89,6 +114,12 @@ namespace Kairos.App.Views
             catch (Exception ex)
             {
                 await DisplayAlert("오류", ex.Message, "확인");
+            }
+            finally
+            {
+                Loading.IsVisible = false;
+                Loading.IsRunning = false;
+                this.IsEnabled = true;
             }
         }
     }

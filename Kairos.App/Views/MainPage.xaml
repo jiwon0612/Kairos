@@ -2,88 +2,148 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Kairos.App.MainPage"
+             Title="프로젝트"
+             BackgroundColor="{StaticResource KairosBackground}"
              xmlns:conv="clr-namespace:Kairos.App.Converters">
-
     <ContentPage.Resources>
         <conv:TodayStarConverter x:Key="TodayStarConverter" />
+        <conv:ProgressConverter x:Key="Progress" />
     </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="로그아웃"
+                     Clicked="OnLogoutClicked" />
+    </ContentPage.ToolbarItems>
+    <Grid RowDefinitions="Auto,Auto,*">
 
-    <VerticalStackLayout Padding="20" Spacing="15">
+        <!-- 제목 + 추가 -->
+        <VerticalStackLayout Grid.Row="0" Padding="20,16,20,0" Spacing="12">
+            <Label Text="프로젝트"
+                   Style="{StaticResource KairosTitle}"
+                   Margin="4,0" />
 
-        <Label Text="내 프로젝트"
-               FontSize="28"
-               FontAttributes="Bold" />
+            <ActivityIndicator x:Name="Loading"
+                   IsVisible="False"
+                   IsRunning="False"
+                   Color="{StaticResource KairosMint}"
+                   HeightRequest="40"
+                   Margin="0,20" />
+            
+            <!-- 새 프로젝트 입력 -->
+            <Border Style="{StaticResource KairosCard}" Padding="0">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Entry Grid.Column="0"
+                           x:Name="NameEntry"
+                           Placeholder="새 프로젝트 이름"
+                           BackgroundColor="Transparent"
+                           TextColor="{StaticResource KairosText}"
+                           PlaceholderColor="{StaticResource KairosTextFaint}"
+                           Margin="14,2" />
+                    <Button Grid.Column="1"
+                            Text="추가"
+                            Style="{StaticResource KairosButtonPrimary}"
+                            HeightRequest="44"
+                            CornerRadius="10"
+                            Margin="4"
+                            Padding="18,0"
+                            Clicked="OnAddClicked" />
+                </Grid>
+            </Border>
+        </VerticalStackLayout>
 
-        <Entry x:Name="NameEntry"
-               Placeholder="새 프로젝트 이름" />
-
-        <Button Text="추가"
-                Clicked="OnAddClicked" />
-        <Button Text="로그아웃"
-        BackgroundColor="Transparent"
-        TextColor="Gray"
-        Clicked="OnLogoutClicked" />
-
-        <CollectionView x:Name="ProjectList"
+        <!-- 프로젝트 목록 -->
+        <CollectionView Grid.Row="2"
+                        x:Name="ProjectList"
+                        Margin="20,12,20,0"
                         SelectionMode="Single"
                         SelectionChanged="OnProjectSelected">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Grid Padding="10,8" ColumnSpacing="8">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource KairosCard}"
+                            Padding="16"
+                            Margin="0,0,0,10">
+                        <Grid ColumnSpacing="12"
+                              ColumnDefinitions="*,Auto,Auto,Auto">
+                            <!-- 이름 + 완료수 + 진행바 -->
+                            <VerticalStackLayout Grid.Column="0" Spacing="7">
+                                <Label Text="{Binding Name}"
+                                       FontSize="17"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource KairosText}" />
+                                <Label FontSize="12"
+                                       TextColor="{StaticResource KairosTextSub}">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="{Binding CompletedCount}" />
+                                            <Span Text=" / " />
+                                            <Span Text="{Binding TotalCount}" />
+                                            <Span Text=" 완료" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <ProgressBar Progress="{Binding ., Converter={StaticResource Progress}}"
+                                             ProgressColor="{StaticResource KairosMint}"
+                                             BackgroundColor="{StaticResource KairosDivider}"
+                                             HeightRequest="5" />
+                            </VerticalStackLayout>
 
-                        <Button Grid.Column="0"
-                                Text="{Binding IsToday, Converter={StaticResource TodayStarConverter}}"
-                                FontSize="18"
-                                BackgroundColor="Transparent"
-                                TextColor="Goldenrod"
-                                Padding="0"
-                                WidthRequest="40"
-                                Clicked="OnToggleToday" />
+                            <!-- 별표 -->
+                            <Button Grid.Column="1"
+                                    Text="{Binding IsToday, Converter={StaticResource TodayStarConverter}}"
+                                    FontSize="20"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{StaticResource KairosMint}"
+                                    Padding="0"
+                                    WidthRequest="40"
+                                    VerticalOptions="Center"
+                                    Clicked="OnToggleToday" />
 
-                        <Label Grid.Column="1"
-                               Text="{Binding Name}"
-                               FontSize="18"
-                               VerticalOptions="Center" />
+                            <!-- 수정 -->
+                            <Button Grid.Column="2"
+                                    Text="수정"
+                                    FontSize="12"
+                                    Padding="10,0"
+                                    HeightRequest="34"
+                                    BackgroundColor="{StaticResource KairosSurfaceAlt}"
+                                    TextColor="{StaticResource KairosTextSub}"
+                                    CornerRadius="9"
+                                    VerticalOptions="Center"
+                                    Clicked="OnEditProject" />
 
-                        <Label Grid.Column="2"
-                                VerticalOptions="Center"
-                                FontSize="14"
-                                TextColor="Gray">
-                            <Label.FormattedText>
-                                <FormattedString>
-                                    <Span Text="{Binding CompletedCount}" />
-                                    <Span Text="/" />
-                                    <Span Text="{Binding TotalCount}" />
-                                </FormattedString>
-                            </Label.FormattedText>
-                        </Label>
-
-                        <Button Grid.Column="3"
-                                Text="수정"
-                                FontSize="12"
-                                Padding="10,0"
-                                HeightRequest="36"
-                                BackgroundColor="SteelBlue"
-                                Clicked="OnEditProject" />
-
-                        <Button Grid.Column="4"
-                                Text="삭제"
-                                FontSize="12"
-                                Padding="10,0"
-                                HeightRequest="36"
-                                BackgroundColor="IndianRed"
-                                Clicked="OnDeleteProject" />
-                    </Grid>
+                            <!-- 삭제 -->
+                            <Button Grid.Column="3"
+                                    Text="삭제"
+                                    FontSize="12"
+                                    Padding="10,0"
+                                    HeightRequest="34"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{StaticResource KairosUrgent}"
+                                    CornerRadius="9"
+                                    VerticalOptions="Center"
+                                    Clicked="OnDeleteProject" />
+                        </Grid>
+                    </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-    </VerticalStackLayout>
+        <VerticalStackLayout Grid.Row="2"
+                     x:Name="EmptyView"
+                     IsVisible="False"
+                     Padding="20,80"
+                     HorizontalOptions="Center"
+                     Spacing="8">
+            <Label Text="📁"
+           FontSize="48"
+           HorizontalOptions="Center" />
+            <Label Text="아직 프로젝트가 없어요"
+           FontSize="16"
+           TextColor="{StaticResource KairosTextSub}"
+           HorizontalOptions="Center" />
+            <Label Text="위에서 첫 프로젝트를 만들어보세요"
+           FontSize="13"
+           TextColor="{StaticResource KairosTextFaint}"
+           HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+    </Grid>
 </ContentPage>
