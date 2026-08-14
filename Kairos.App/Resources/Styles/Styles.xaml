@@ -424,4 +424,67 @@
         <Setter Property="SelectedTabColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray200}}" />
     </Style>
 
+    <!-- ============================================ -->
+    <!-- Kairos 공통 스타일                            -->
+    <!-- ============================================ -->
+
+    <!-- 페이지 배경 (미드나잇) -->
+    <Style x:Key="KairosPage" TargetType="ContentPage">
+        <Setter Property="BackgroundColor" Value="{StaticResource KairosBackground}" />
+    </Style>
+
+    <!-- 큰 제목 (라지 타이틀) -->
+    <Style x:Key="KairosTitle" TargetType="Label">
+        <Setter Property="FontSize" Value="30" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="{StaticResource KairosText}" />
+    </Style>
+
+    <!-- 부제목 -->
+    <Style x:Key="KairosSubtitle" TargetType="Label">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="TextColor" Value="{StaticResource KairosTextSub}" />
+    </Style>
+
+    <!-- 기본 텍스트 -->
+    <Style x:Key="KairosLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="TextColor" Value="{StaticResource KairosText}" />
+    </Style>
+
+    <!-- 카드 (Border) -->
+    <Style x:Key="KairosCard" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource KairosSurface}" />
+        <Setter Property="Stroke" Value="Transparent" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 14" />
+        <Setter Property="Padding" Value="16" />
+    </Style>
+
+    <!-- 민트 버튼 (주요 액션) -->
+    <Style x:Key="KairosButtonPrimary" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource KairosMint}" />
+        <Setter Property="TextColor" Value="{StaticResource KairosBackground}" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="CornerRadius" Value="14" />
+        <Setter Property="HeightRequest" Value="52" />
+    </Style>
+
+    <!-- 보조 버튼 (카드형) -->
+    <Style x:Key="KairosButtonSecondary" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource KairosSurface}" />
+        <Setter Property="TextColor" Value="{StaticResource KairosText}" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="CornerRadius" Value="14" />
+        <Setter Property="HeightRequest" Value="50" />
+    </Style>
+
+    <!-- 입력창 -->
+    <Style x:Key="KairosEntry" TargetType="Entry">
+        <Setter Property="BackgroundColor" Value="{StaticResource KairosSurface}" />
+        <Setter Property="TextColor" Value="{StaticResource KairosText}" />
+        <Setter Property="PlaceholderColor" Value="{StaticResource KairosTextFaint}" />
+        <Setter Property="FontSize" Value="15" />
+    </Style>
+    
 </ResourceDictionary>

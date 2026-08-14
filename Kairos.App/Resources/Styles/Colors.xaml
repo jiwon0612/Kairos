@@ -4,6 +4,39 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
+    <!-- ============================================ -->
+    <!-- Kairos 테마 색 (미드나잇 + 민트)              -->
+    <!-- ============================================ -->
+
+    <!-- 배경 계열 -->
+    <Color x:Key="KairosBackground">#16181D</Color>
+    <Color x:Key="KairosSurface">#1E2127</Color>
+    <Color x:Key="KairosSurfaceAlt">#1A1C21</Color>
+    <Color x:Key="KairosNav">#0E0F13</Color>
+
+    <!-- 강조 (민트) -->
+    <Color x:Key="KairosMint">#5EEAD4</Color>
+    <Color x:Key="KairosMintDim">#252A2E</Color>
+
+    <!-- 텍스트 -->
+    <Color x:Key="KairosText">#E8EBF0</Color>
+    <Color x:Key="KairosTextSub">#8894A5</Color>
+    <Color x:Key="KairosTextFaint">#5A6270</Color>
+
+    <!-- 상태 색 (마감/우선순위) -->
+    <Color x:Key="KairosUrgent">#FF6B6B</Color>
+    <Color x:Key="KairosSoon">#FFA94D</Color>
+    <Color x:Key="KairosLow">#5A6270</Color>
+
+    <!-- 구분선/테두리 -->
+    <Color x:Key="KairosDivider">#282C34</Color>
+    <Color x:Key="KairosBorder">#3A3F48</Color>
+
+    <!-- Brush 버전 -->
+    <SolidColorBrush x:Key="KairosBackgroundBrush" Color="{StaticResource KairosBackground}"/>
+    <SolidColorBrush x:Key="KairosSurfaceBrush" Color="{StaticResource KairosSurface}"/>
+    <SolidColorBrush x:Key="KairosMintBrush" Color="{StaticResource KairosMint}"/>
+    
     <!-- Note: For Android please see also Platforms\Android\Resources\values\colors.xml -->
 
     <Color x:Key="Primary">#512BD4</Color>

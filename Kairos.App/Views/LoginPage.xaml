@@ -2,35 +2,106 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Kairos.App.Views.LoginPage"
-             Title="로그인">
+             Title="로그인"
+             BackgroundColor="{StaticResource KairosBackground}"
+             Shell.NavBarIsVisible="False">
+    <ScrollView>
+        <VerticalStackLayout Padding="32" Spacing="14"
+                             VerticalOptions="Center">
 
-    <VerticalStackLayout Padding="30" Spacing="15"
-                         VerticalOptions="Center">
+            <!-- 로고 -->
+            <Border BackgroundColor="{StaticResource KairosSurface}"
+                    Stroke="{StaticResource KairosDivider}"
+                    StrokeThickness="1"
+                    HeightRequest="88"
+                    WidthRequest="88"
+                    HorizontalOptions="Center"
+                    Margin="0,0,0,8">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="26" />
+                </Border.StrokeShape>
+                <!-- 동심원 + 민트 점 (아이콘 모티브) -->
+                <Grid HorizontalOptions="Center" VerticalOptions="Center">
+                    <Ellipse Stroke="{StaticResource KairosMint}"
+                             StrokeThickness="3"
+                             HeightRequest="44"
+                             WidthRequest="44"
+                             Fill="Transparent" />
+                    <Ellipse Fill="{StaticResource KairosMint}"
+                             HeightRequest="12"
+                             WidthRequest="12" />
+                </Grid>
+            </Border>
 
-        <Label Text="Kairos"
-               FontSize="36"
-               FontAttributes="Bold"
-               HorizontalOptions="Center" />
+            <!-- 앱 이름 -->
+            <Label Text="Kairos"
+                   FontSize="28"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource KairosText}"
+                   HorizontalOptions="Center" />
+            <Label Text="결정적 순간을 놓치지 않게"
+                   FontSize="14"
+                   TextColor="{StaticResource KairosTextSub}"
+                   HorizontalOptions="Center"
+                   Margin="0,0,0,24" />
 
-        <Entry x:Name="EmailEntry"
-               Placeholder="이메일"
-               Keyboard="Email" />
+            <!-- 입력창 -->
+            <Border Style="{StaticResource KairosCard}" Padding="0">
+                <Entry x:Name="EmailEntry"
+                       Placeholder="이메일"
+                       Keyboard="Email"
+                       BackgroundColor="Transparent"
+                       TextColor="{StaticResource KairosText}"
+                       PlaceholderColor="{StaticResource KairosTextFaint}"
+                       Margin="14,2" />
+            </Border>
 
-        <Entry x:Name="PasswordEntry"
-               Placeholder="비밀번호"
-               IsPassword="True" />
+            <Border Style="{StaticResource KairosCard}" Padding="0">
+                <Entry x:Name="PasswordEntry"
+                       Placeholder="비밀번호"
+                       IsPassword="True"
+                       BackgroundColor="Transparent"
+                       TextColor="{StaticResource KairosText}"
+                       PlaceholderColor="{StaticResource KairosTextFaint}"
+                       Margin="14,2" />
+            </Border>
 
-        <Button Text="로그인"
-                Clicked="OnLoginClicked" />
+            <!-- 로그인 버튼 (민트) -->
+            <Button Text="로그인"
+                    Style="{StaticResource KairosButtonPrimary}"
+                    Margin="0,8,0,0"
+                    Clicked="OnLoginClicked" />
 
-        <Button Text="회원가입"
-                BackgroundColor="Transparent"
-                TextColor="Gray"
-                Clicked="OnRegisterClicked" />
-        <Button Text="구글로 로그인"
-            BackgroundColor="White"
-            TextColor="Black"
-            Clicked="OnGoogleLoginClicked" />
+            <!-- 구분선 -->
+            <Grid ColumnDefinitions="*,Auto,*" Margin="0,8">
+                <BoxView Grid.Column="0"
+                         HeightRequest="1"
+                         Color="{StaticResource KairosDivider}"
+                         VerticalOptions="Center" />
+                <Label Grid.Column="1"
+                       Text="또는"
+                       FontSize="13"
+                       TextColor="{StaticResource KairosTextFaint}"
+                       Margin="12,0" />
+                <BoxView Grid.Column="2"
+                         HeightRequest="1"
+                         Color="{StaticResource KairosDivider}"
+                         VerticalOptions="Center" />
+            </Grid>
 
-    </VerticalStackLayout>
+            <!-- 구글 로그인 (보조 버튼) -->
+            <Button Text="구글로 로그인"
+                    Style="{StaticResource KairosButtonSecondary}"
+                    Clicked="OnGoogleLoginClicked" />
+
+            <!-- 회원가입 -->
+            <Button Text="계정이 없으신가요?  회원가입"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource KairosTextSub}"
+                    FontSize="14"
+                    Margin="0,12,0,0"
+                    Clicked="OnRegisterClicked" />
+
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
