@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Kairos.App.Views.ProjectHubPage"
+             Title="프로젝트"
+             BackgroundColor="{StaticResource KairosBackground}"
+             xmlns:conv="clr-namespace:Kairos.App.Converters">
+    <ContentPage.Resources>
+        <conv:InitialConverter x:Key="Initial" />
+        <conv:ProgressConverter x:Key="Progress" />
+        <conv:TodayStarConverter x:Key="TodayStar" />
+        <conv:PriorityColorConverter x:Key="PriorityColor" />
+    </ContentPage.Resources>
+
+    <Grid>
+
+        <!-- ============ 상태 1: 프로젝트 목록 ============ -->
+        <Grid x:Name="ListView"
+              IsVisible="True"
+              RowDefinitions="Auto,*">
+
+            <Label Grid.Row="0"
+                   Text="프로젝트"
+                   Style="{StaticResource KairosTitle}"
+                   Margin="24,16,24,8" />
+
+            <ScrollView Grid.Row="1">
+                <VerticalStackLayout Padding="20,4,20,20"
+                                     Spacing="10"
+                                     BindableLayout.ItemsSource="{Binding Projects}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource KairosCard}" Padding="16">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnProjectTapped" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnSpacing="12"
+                                      ColumnDefinitions="Auto,*,Auto">
+                                    <Border Grid.Column="0"
+                                            BackgroundColor="{StaticResource KairosSurfaceAlt}"
+                                            Stroke="Transparent"
+                                            StrokeShape="RoundRectangle 12"
+                                            WidthRequest="42"
+                                            HeightRequest="42"
+                                            VerticalOptions="Center">
+                                        <Label Text="{Binding Name, Converter={StaticResource Initial}}"
+                                               FontSize="16"
+                                               FontAttributes="Bold"
+                                               TextColor="{StaticResource KairosTextSub}"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center" />
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                                        <Label Text="{Binding Name}"
+                                               FontSize="17"
+                                               FontAttributes="Bold"
+                                               TextColor="{StaticResource KairosText}" />
+                                        <Label FontSize="12"
+                                               TextColor="{StaticResource KairosTextSub}">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding CompletedCount}" />
+                                                    <Span Text=" / " />
+                                                    <Span Text="{Binding TotalCount}" />
+                                                    <Span Text=" 완료" />
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                        <ProgressBar Progress="{Binding ., Converter={StaticResource Progress}}"
+                                                     ProgressColor="{StaticResource KairosMint}"
+                                                     BackgroundColor="{StaticResource KairosDivider}"
+                                                     HeightRequest="5" />
+                                    </VerticalStackLayout>
+                                    <Button Grid.Column="2"
+                                            Text="{Binding IsToday, Converter={StaticResource TodayStar}}"
+                                            FontSize="20"
+                                            BackgroundColor="Transparent"
+                                            TextColor="{StaticResource KairosMint}"
+                                            Padding="0"
+                                            WidthRequest="40"
+                                            VerticalOptions="Center"
+                                            Clicked="OnToggleToday" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <Button Grid.Row="1"
+                    Text="+"
+                    FontSize="28"
+                    WidthRequest="58"
+                    HeightRequest="58"
+                    CornerRadius="19"
+                    BackgroundColor="{StaticResource KairosMint}"
+                    TextColor="{StaticResource KairosBackground}"
+                    HorizontalOptions="End"
+                    VerticalOptions="End"
+                    Margin="0,0,24,24"
+                    Clicked="OnAddProjectTapped" />
+        </Grid>
+
+        <!-- ============ 상태 2: 사이드바 + 할일 ============ -->
+        <Grid x:Name="DetailView"
+              IsVisible="False"
+              ColumnDefinitions="76,*">
+
+            <!-- 사이드바 -->
+            <ScrollView Grid.Column="0"
+                        BackgroundColor="{StaticResource KairosNav}">
+                <VerticalStackLayout Padding="0,20,0,20" Spacing="6"
+                                     HorizontalOptions="Center">
+                    <Border BackgroundColor="{StaticResource KairosSurface}"
+                            Stroke="Transparent"
+                            StrokeShape="RoundRectangle 14"
+                            WidthRequest="44" HeightRequest="44">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnBackTapped" />
+                        </Border.GestureRecognizers>
+                        <Label Text="‹" FontSize="24"
+                               TextColor="{StaticResource KairosTextSub}"
+                               HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+
+                    <BoxView WidthRequest="32" HeightRequest="1"
+                             Color="{StaticResource KairosDivider}" Margin="0,4" />
+
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Projects}"
+                                         Spacing="6">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate>
+                                <VerticalStackLayout Spacing="3" HorizontalOptions="Center">
+                                    <VerticalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnSidebarProjectTapped" />
+                                    </VerticalStackLayout.GestureRecognizers>
+                                    <Border BackgroundColor="{StaticResource KairosSurface}"
+                                            Stroke="Transparent"
+                                            StrokeShape="RoundRectangle 14"
+                                            WidthRequest="44" HeightRequest="44">
+                                        <Label Text="{Binding Name, Converter={StaticResource Initial}}"
+                                               FontSize="16" FontAttributes="Bold"
+                                               TextColor="{StaticResource KairosTextSub}"
+                                               HorizontalOptions="Center" VerticalOptions="Center" />
+                                    </Border>
+                                    <Label Text="{Binding Name}"
+                                           FontSize="9"
+                                           TextColor="{StaticResource KairosTextFaint}"
+                                           HorizontalOptions="Center"
+                                           MaxLines="1" LineBreakMode="TailTruncation"
+                                           WidthRequest="56" />
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!-- 할일 영역 -->
+            <ScrollView Grid.Column="1">
+                <VerticalStackLayout Padding="20" Spacing="16">
+                    <Label x:Name="DetailTitle"
+                           Text="프로젝트"
+                           Style="{StaticResource KairosTitle}"
+                           Margin="4,8,4,0" />
+
+                    <!-- 할 일 추가 카드 -->
+                    <Border Style="{StaticResource KairosCard}" Padding="16">
+                        <VerticalStackLayout Spacing="14">
+                            <Border BackgroundColor="{StaticResource KairosSurfaceAlt}"
+                                    Stroke="Transparent"
+                                    StrokeShape="RoundRectangle 10"
+                                    Padding="0">
+                                <Entry x:Name="TitleEntry"
+                                       Placeholder="새 할 일"
+                                       BackgroundColor="Transparent"
+                                       TextColor="{StaticResource KairosText}"
+                                       PlaceholderColor="{StaticResource KairosTextFaint}"
+                                       Margin="14,2" />
+                            </Border>
+
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="우선순위"
+                                       FontSize="13"
+                                       TextColor="{StaticResource KairosTextSub}" />
+                                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                                    <Button Grid.Column="0" x:Name="PriHigh"
+                                            Text="높음" FontSize="14"
+                                            BackgroundColor="{StaticResource KairosSurfaceAlt}"
+                                            TextColor="{StaticResource KairosTextSub}"
+                                            CornerRadius="10" HeightRequest="42"
+                                            Clicked="OnSelectPriority" CommandParameter="2" />
+                                    <Button Grid.Column="1" x:Name="PriMid"
+                                            Text="보통" FontSize="14"
+                                            BackgroundColor="{StaticResource KairosMint}"
+                                            TextColor="{StaticResource KairosBackground}"
+                                            FontAttributes="Bold"
+                                            CornerRadius="10" HeightRequest="42"
+                                            Clicked="OnSelectPriority" CommandParameter="1" />
+                                    <Button Grid.Column="2" x:Name="PriLow"
+                                            Text="낮음" FontSize="14"
+                                            BackgroundColor="{StaticResource KairosSurfaceAlt}"
+                                            TextColor="{StaticResource KairosTextSub}"
+                                            CornerRadius="10" HeightRequest="42"
+                                            Clicked="OnSelectPriority" CommandParameter="0" />
+                                </Grid>
+                            </VerticalStackLayout>
+
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Grid.Column="0" Text="마감일 설정"
+                                       FontSize="15"
+                                       TextColor="{StaticResource KairosText}"
+                                       VerticalOptions="Center" />
+                                <Switch Grid.Column="1" x:Name="UseDueDateCheck"
+                                        OnColor="{StaticResource KairosMint}"
+                                        ThumbColor="{StaticResource KairosText}"
+                                        Toggled="OnUseDueDateChanged" />
+                            </Grid>
+
+                            <VerticalStackLayout x:Name="DueDateArea"
+                                                 IsVisible="False" Spacing="10">
+                                <DatePicker x:Name="DuePicker"
+                                            TextColor="{StaticResource KairosText}" />
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0" Text="시간도 지정"
+                                           FontSize="15"
+                                           TextColor="{StaticResource KairosText}"
+                                           VerticalOptions="Center" />
+                                    <Switch Grid.Column="1" x:Name="UseDueTimeCheck"
+                                            OnColor="{StaticResource KairosMint}"
+                                            ThumbColor="{StaticResource KairosText}"
+                                            Toggled="OnUseDueTimeChanged" />
+                                </Grid>
+                                <TimePicker x:Name="DueTimePicker"
+                                            IsVisible="False"
+                                            TextColor="{StaticResource KairosText}" />
+                            </VerticalStackLayout>
+
+                            <Button Text="추가하기"
+                                    Style="{StaticResource KairosButtonPrimary}"
+                                    Clicked="OnAddClicked" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- 할 일 목록 -->
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Todos}"
+                                         Spacing="8">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource KairosCard}" Padding="16,14">
+                                    <Grid ColumnSpacing="12"
+                                          ColumnDefinitions="Auto,Auto,*,Auto,Auto">
+                                        <CheckBox Grid.Column="0"
+                                                  IsChecked="{Binding IsCompleted, Mode=OneWay}"
+                                                  Color="{StaticResource KairosMint}"
+                                                  VerticalOptions="Center"
+                                                  CheckedChanged="OnCheckChanged" />
+                                        <Ellipse Grid.Column="1"
+                                                 Fill="{Binding Priority, Converter={StaticResource PriorityColor}}"
+                                                 WidthRequest="8" HeightRequest="8"
+                                                 VerticalOptions="Center">
+                                            <Ellipse.GestureRecognizers>
+                                                <TapGestureRecognizer Tapped="OnChangePriority" />
+                                            </Ellipse.GestureRecognizers>
+                                        </Ellipse>
+                                        <VerticalStackLayout Grid.Column="2"
+                                                             VerticalOptions="Center" Spacing="3">
+                                            <Label Text="{Binding Title}"
+                                                   FontSize="16"
+                                                   TextColor="{Binding TitleColor}"
+                                                   TextDecorations="{Binding TitleDecoration}" />
+                                            <Label Text="{Binding DueDateText}"
+                                                   TextColor="{Binding DueDateColor}"
+                                                   FontSize="12" />
+                                        </VerticalStackLayout>
+                                        <Button Grid.Column="3"
+                                                Text="수정" FontSize="12"
+                                                Padding="10,0" HeightRequest="34"
+                                                BackgroundColor="{StaticResource KairosSurfaceAlt}"
+                                                TextColor="{StaticResource KairosTextSub}"
+                                                CornerRadius="9"
+                                                VerticalOptions="Center"
+                                                Clicked="OnEditTodo" />
+                                        <Button Grid.Column="4"
+                                                Text="삭제" FontSize="12"
+                                                Padding="10,0" HeightRequest="34"
+                                                BackgroundColor="Transparent"
+                                                TextColor="{StaticResource KairosUrgent}"
+                                                CornerRadius="9"
+                                                VerticalOptions="Center"
+                                                Clicked="OnDeleteTodo" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </ScrollView>
+        </Grid>
+
+    </Grid>
+</ContentPage>

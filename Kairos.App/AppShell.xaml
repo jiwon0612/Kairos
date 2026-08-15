@@ -22,8 +22,8 @@
             Route="TodayPage" />
         <ShellContent
             Title="프로젝트"
-            ContentTemplate="{DataTemplate local:MainPage}"
-            Route="MainPage" />
+            ContentTemplate="{DataTemplate views:ProjectHubPage}"
+            Route="ProjectHubPage" />
     </TabBar>
 
 </Shell>
