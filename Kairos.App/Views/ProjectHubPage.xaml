@@ -7,10 +7,13 @@
              xmlns:conv="clr-namespace:Kairos.App.Converters">
     <ContentPage.Resources>
         <conv:InitialConverter x:Key="Initial" />
-        <conv:ProgressConverter x:Key="Progress" />
         <conv:TodayStarConverter x:Key="TodayStar" />
         <conv:PriorityColorConverter x:Key="PriorityColor" />
     </ContentPage.Resources>
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="로그아웃" Clicked="OnLogoutClicked" />
+    </ContentPage.ToolbarItems>
 
     <Grid>
 
@@ -23,6 +26,16 @@
                    Text="프로젝트"
                    Style="{StaticResource KairosTitle}"
                    Margin="24,16,24,8" />
+
+            <!-- 프로젝트 로딩 -->
+            <ActivityIndicator x:Name="ProjectLoading"
+                               Grid.Row="1"
+                               IsVisible="False"
+                               IsRunning="False"
+                               Color="{StaticResource KairosMint}"
+                               HeightRequest="40"
+                               VerticalOptions="Start"
+                               Margin="0,20" />
 
             <ScrollView Grid.Row="1">
                 <VerticalStackLayout Padding="20,4,20,20"
@@ -66,7 +79,7 @@
                                                 </FormattedString>
                                             </Label.FormattedText>
                                         </Label>
-                                        <ProgressBar Progress="{Binding ., Converter={StaticResource Progress}}"
+                                        <ProgressBar Progress="{Binding Progress}"
                                                      ProgressColor="{StaticResource KairosMint}"
                                                      BackgroundColor="{StaticResource KairosDivider}"
                                                      HeightRequest="5" />
@@ -134,13 +147,13 @@
                                     <VerticalStackLayout.GestureRecognizers>
                                         <TapGestureRecognizer Tapped="OnSidebarProjectTapped" />
                                     </VerticalStackLayout.GestureRecognizers>
-                                    <Border BackgroundColor="{StaticResource KairosSurface}"
+                                    <Border BackgroundColor="{Binding IconBackground}"
                                             Stroke="Transparent"
                                             StrokeShape="RoundRectangle 14"
                                             WidthRequest="44" HeightRequest="44">
                                         <Label Text="{Binding Name, Converter={StaticResource Initial}}"
                                                FontSize="16" FontAttributes="Bold"
-                                               TextColor="{StaticResource KairosTextSub}"
+                                               TextColor="{Binding IconTextColor}"
                                                HorizontalOptions="Center" VerticalOptions="Center" />
                                     </Border>
                                     <Label Text="{Binding Name}"
@@ -241,6 +254,14 @@
                                     Clicked="OnAddClicked" />
                         </VerticalStackLayout>
                     </Border>
+
+                    <!-- 할 일 로딩 -->
+                    <ActivityIndicator x:Name="TodoLoading"
+                                       IsVisible="False"
+                                       IsRunning="False"
+                                       Color="{StaticResource KairosMint}"
+                                       HeightRequest="40"
+                                       Margin="0,10" />
 
                     <!-- 할 일 목록 -->
                     <VerticalStackLayout BindableLayout.ItemsSource="{Binding Todos}"

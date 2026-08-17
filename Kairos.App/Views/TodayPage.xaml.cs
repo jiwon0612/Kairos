@@ -122,4 +122,13 @@ public partial class TodayPage : ContentPage
             }
         }
     }
+
+    private async void OnLogoutClicked(object sender, EventArgs e)
+    {
+        bool ok = await DisplayAlert("로그아웃", "로그아웃할까요?", "로그아웃", "취소");
+        if (!ok) return;
+
+        _api.Logout();
+        await Shell.Current.GoToAsync("//LoginPage");
+    }
 }

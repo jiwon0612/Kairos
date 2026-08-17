@@ -32,7 +32,7 @@ namespace Kairos.App.Views
                 var success = await _api.LoginAsync(email, password);
                 if (success)
                 {
-                    await Shell.Current.GoToAsync("//MainPage");
+                    await Shell.Current.GoToAsync("//TodayPage");
                 }
                 else
                 {
@@ -107,7 +107,7 @@ namespace Kairos.App.Views
 
                 var success = await _api.GoogleLoginAsync(idToken);
                 if (success)
-                    await Shell.Current.GoToAsync("//MainPage");
+                    await Shell.Current.GoToAsync("//TodayPage");
                 else
                     await DisplayAlert("로그인 실패", "Google 로그인에 실패했습니다.", "확인");
             }

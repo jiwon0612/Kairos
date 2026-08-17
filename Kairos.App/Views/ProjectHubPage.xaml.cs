@@ -9,14 +9,14 @@ namespace Kairos.App.Views;
 public partial class ProjectHubPage : ContentPage
 {
 	private readonly ApiService _api = new();
-	private readonly ObservableCollection<ProjectResponse> _projects = new();
+	private readonly ObservableCollection<ProjectItemViewModel> _projects = new();
 
 	private readonly ObservableCollection<TodoViewModel> _todos = new();
 
 	private int _currentProjectId;
 	private int _selectedPriority = 1;
 
-	public ObservableCollection<ProjectResponse> Projects => _projects;
+	public ObservableCollection<ProjectItemViewModel> Projects => _projects;
 	public ObservableCollection<TodoViewModel> Todos => _todos;
 
 	public ProjectHubPage()
@@ -35,20 +35,28 @@ public partial class ProjectHubPage : ContentPage
 	{
 		try
 		{
-			var projects = await _api.GetProjectsAsync();
+            ProjectLoading.IsVisible = true;
+            ProjectLoading.IsRunning = true;
+
+            var projects = await _api.GetProjectsAsync();
 			_projects.Clear();
 			foreach (var p in projects)
-				_projects.Add(p);
+				_projects.Add(new ProjectItemViewModel(p));
 		}
 		catch (Exception ex)
 		{
 			await DisplayAlert("오류", $"프로젝트 불러오기 실패: {ex.Message}", "확인");
 		}
-	}
+        finally
+        {
+            ProjectLoading.IsVisible = false;
+            ProjectLoading.IsRunning = false;
+        }
+    }
 
 	private async void OnProjectTapped(object sender, EventArgs e)
 	{
-		if (sender is Element el && el.BindingContext is ProjectResponse project)
+		if (sender is Element el && el.BindingContext is ProjectItemViewModel project)
 		{
 			ListView.IsVisible = false;
 			DetailView.IsVisible = true;
@@ -58,16 +66,19 @@ public partial class ProjectHubPage : ContentPage
 
 	private async void OnSidebarProjectTapped(object sender, EventArgs e)
 	{
-		if (sender is Element el && el.BindingContext is ProjectResponse project)
+		if (sender is Element el && el.BindingContext is ProjectItemViewModel project)
 		{
 			await SelectProjectAsync(project);
 		}
 	}
 
-	private async Task SelectProjectAsync(ProjectResponse project)
+	private async Task SelectProjectAsync(ProjectItemViewModel project)
 	{
 		_currentProjectId = project.ID;
 		DetailTitle.Text = project.Name;
+		foreach (var p in _projects)
+			p.IsSelected = false;
+		project.IsSelected = true;
 		await LoadTodosAsync();
 	}
 
@@ -75,7 +86,10 @@ public partial class ProjectHubPage : ContentPage
 	{
 		try
 		{
-			var all = await _api.GetTodosAsync();
+            TodoLoading.IsVisible = true;
+            TodoLoading.IsRunning = true;
+
+            var all = await _api.GetTodosAsync();
 			_todos.Clear();
 			foreach (var t in all
 				.Where(t => t.ProjectID == _currentProjectId)
@@ -87,7 +101,12 @@ public partial class ProjectHubPage : ContentPage
 		{
 			await DisplayAlert("오류", $"할 일 불러오기 실패: {ex.Message}", "확인");
 		}
-	}
+        finally
+        {
+            TodoLoading.IsVisible = false;
+            TodoLoading.IsRunning = false;
+        }
+    }
 
 	private async void OnCheckChanged(object sender, CheckedChangedEventArgs e)
 	{
@@ -132,7 +151,7 @@ public partial class ProjectHubPage : ContentPage
 
 	private async void OnToggleToday(object sender, EventArgs e)
 	{
-		if (sender is Button btn && btn.BindingContext is ProjectResponse project)
+		if (sender is Button btn && btn.BindingContext is ProjectItemViewModel project)
 		{
 			try
 			{
@@ -284,4 +303,13 @@ public partial class ProjectHubPage : ContentPage
             }
 		}
 	}
+
+    private async void OnLogoutClicked(object sender, EventArgs e)
+    {
+        bool ok = await DisplayAlert("로그아웃", "로그아웃할까요?", "로그아웃", "취소");
+        if (!ok) return;
+
+        _api.Logout();
+        await Shell.Current.GoToAsync("//LoginPage");
+    }
 }

@@ -55,7 +55,9 @@ namespace Kairos.App.Services
         {
             SecureStorage.Remove(TokenKey);
             SecureStorage.Remove(RefreshTokenKey);
+            SecureStorage.RemoveAll();
             _http.DefaultRequestHeaders.Authorization = null;
+            System.Diagnostics.Debug.WriteLine(">>> 로그아웃 실행됨");
         }
 
         public async Task<bool> RegisterAsync(string email, string password)

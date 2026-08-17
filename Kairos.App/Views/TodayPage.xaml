@@ -5,6 +5,11 @@
              Title="오늘"
              BackgroundColor="{StaticResource KairosBackground}"
              xmlns:conv="clr-namespace:Kairos.App.Converters">
+    
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="로그아웃" Clicked="OnLogoutClicked" />
+    </ContentPage.ToolbarItems>
+
     <ContentPage.Resources>
         <conv:PriorityColorConverter x:Key="PriorityColor" />
     </ContentPage.Resources>
