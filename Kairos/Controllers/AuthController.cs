@@ -2,6 +2,7 @@
 using Kairos.Api.Models;
 using Kairos.Data;
 using Kairos.Shared.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -176,6 +177,27 @@ namespace Kairos.Api.Controllers
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        [HttpDelete("account")]
+        [Authorize]
+        public async Task<IActionResult> DeleteAccount()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+                return Unauthorized();
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return NotFound();
+
+            var projects = _context.Projects.Where(p => p.UserID == userId);
+            _context.Projects.RemoveRange(projects);
+            await _context.SaveChangesAsync();
+
+            await _userManager.DeleteAsync(user);
+
+            return NoContent();
         }
     }
 }
