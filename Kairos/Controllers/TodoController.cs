@@ -112,6 +112,15 @@ namespace Kairos.Controllers
             return NoContent();
         }
 
+        [HttpPut("{id}/duedate")]
+        public IActionResult SetDueDate(int id, SetDueDateRequest request)
+        {
+            var updatedTodo = _todoService.SetDueDate(id, request.DueDate, request.HasDueTime,GetUserId());
+            if (!updatedTodo)
+                return NotFound();
+            return NoContent();
+        }
+
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {

@@ -83,5 +83,16 @@ namespace Kairos.Services
                 .OrderByDescending(t => t.Priority)
                 .ToList();
         }
+
+        public bool SetDueDate(int id, DateTime? dueDatem, bool hasDueTime, string userId)
+        {
+            var date = _context.Todos.FirstOrDefault(t => t.ID == id && t.Project!.UserID == userId);
+            if (date == null)
+                return false;
+            date.DueDate = dueDatem;
+            date.HasDueTime = hasDueTime;
+            _context.SaveChanges();
+            return true;
+        }
     }
 }
