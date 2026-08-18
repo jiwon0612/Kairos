@@ -210,6 +210,17 @@ namespace Kairos.App.Services
             await _http.PutAsJsonAsync($"/api/Todo/{todoId}/completed", result);
         }
 
+        public async Task<bool> SetDueDateAsync(int id, DateTime? dueDate, bool hasDueTime)
+        {
+            var request = new SetDueDateRequest
+            {
+                DueDate = dueDate,
+                HasDueTime = hasDueTime
+            };
+            var response = await _http.PutAsJsonAsync($"/api/Todo/{id}/duedate", request);
+            return response.IsSuccessStatusCode;
+        }
+
         public async Task<List<TodoResponse>> GetTodayTodosAsync()
         {
             //await SetAuthHeaderAsync();

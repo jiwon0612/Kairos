@@ -312,4 +312,17 @@ public partial class ProjectHubPage : ContentPage
         _api.Logout();
         await Shell.Current.GoToAsync("//LoginPage");
     }
+
+	private async void OnEditDueDate(object sender, EventArgs e)
+	{
+		if (sender is Element el && el.BindingContext is TodoViewModel todo)
+		{
+			var page = new EditDueDatePage(
+				todo.ID,
+				todo.DueDate,
+				todo.HasDueTime,
+				LoadTodosAsync);
+			await Navigation.PushModalAsync(page);
+		}
+	}
 }

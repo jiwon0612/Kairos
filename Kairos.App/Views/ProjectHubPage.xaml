@@ -27,7 +27,6 @@
                    Style="{StaticResource KairosTitle}"
                    Margin="24,16,24,8" />
 
-            <!-- 프로젝트 로딩 -->
             <ActivityIndicator x:Name="ProjectLoading"
                                Grid.Row="1"
                                IsVisible="False"
@@ -255,7 +254,6 @@
                         </VerticalStackLayout>
                     </Border>
 
-                    <!-- 할 일 로딩 -->
                     <ActivityIndicator x:Name="TodoLoading"
                                        IsVisible="False"
                                        IsRunning="False"
@@ -292,7 +290,11 @@
                                                    TextDecorations="{Binding TitleDecoration}" />
                                             <Label Text="{Binding DueDateText}"
                                                    TextColor="{Binding DueDateColor}"
-                                                   FontSize="12" />
+                                                   FontSize="12">
+                                                <Label.GestureRecognizers>
+                                                    <TapGestureRecognizer Tapped="OnEditDueDate" />
+                                                </Label.GestureRecognizers>
+                                            </Label>
                                         </VerticalStackLayout>
                                         <Button Grid.Column="3"
                                                 Text="수정" FontSize="12"

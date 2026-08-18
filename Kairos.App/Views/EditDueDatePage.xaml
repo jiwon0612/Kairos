@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Kairos.App.Views.EditDueDatePage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#AA000000">
+
+    <!-- 반투명 배경 위에 가운데 카드 -->
+    <Grid Padding="24">
+        <Border Style="{StaticResource KairosCard}"
+                Padding="20"
+                VerticalOptions="Center"
+                HorizontalOptions="Fill">
+            <VerticalStackLayout Spacing="18">
+
+                <Label Text="마감일 수정"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource KairosText}" />
+
+                <!-- 마감일 설정 스위치 -->
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Grid.Column="0" Text="마감일 설정"
+                           FontSize="15"
+                           TextColor="{StaticResource KairosText}"
+                           VerticalOptions="Center" />
+                    <Switch Grid.Column="1" x:Name="UseDueDateCheck"
+                            OnColor="{StaticResource KairosMint}"
+                            ThumbColor="{StaticResource KairosText}"
+                            Toggled="OnUseDueDateChanged" />
+                </Grid>
+
+                <!-- 날짜/시간 영역 -->
+                <VerticalStackLayout x:Name="DueDateArea"
+                                     IsVisible="False" Spacing="12">
+                    <DatePicker x:Name="DuePicker"
+                                TextColor="{StaticResource KairosText}" />
+
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0" Text="시간도 지정"
+                               FontSize="15"
+                               TextColor="{StaticResource KairosText}"
+                               VerticalOptions="Center" />
+                        <Switch Grid.Column="1" x:Name="UseDueTimeCheck"
+                                OnColor="{StaticResource KairosMint}"
+                                ThumbColor="{StaticResource KairosText}"
+                                Toggled="OnUseDueTimeChanged" />
+                    </Grid>
+
+                    <TimePicker x:Name="DueTimePicker"
+                                IsVisible="False"
+                                TextColor="{StaticResource KairosText}" />
+                </VerticalStackLayout>
+
+                <!-- 버튼들 -->
+                <VerticalStackLayout Spacing="8" Margin="0,4,0,0">
+                    <Button Text="저장"
+                            Style="{StaticResource KairosButtonPrimary}"
+                            Clicked="OnSaveClicked" />
+                    <Button Text="취소"
+                            Style="{StaticResource KairosButtonSecondary}"
+                            Clicked="OnCancelClicked" />
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentPage>
