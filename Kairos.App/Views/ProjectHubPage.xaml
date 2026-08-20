@@ -12,7 +12,7 @@
     </ContentPage.Resources>
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="로그아웃" Clicked="OnLogoutClicked" />
+        <ToolbarItem Text="계정" Clicked="OnAccountClicked" />
     </ContentPage.ToolbarItems>
 
     <Grid>

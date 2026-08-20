@@ -1,4 +1,5 @@
-﻿namespace Kairos.App
+﻿
+namespace Kairos.App
 {
     public partial class App : Application
     {
@@ -7,6 +8,13 @@
             InitializeComponent();
 
             MainPage = new AppShell();
+        }
+
+        protected override Window CreateWindow(IActivationState? activationState)
+        {
+            var window = base.CreateWindow(activationState);
+            window.Title = "Kairos";
+            return window;
         }
     }
 }

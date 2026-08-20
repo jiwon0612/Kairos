@@ -123,12 +123,59 @@ public partial class TodayPage : ContentPage
         }
     }
 
-    private async void OnLogoutClicked(object sender, EventArgs e)
+    private async void OnAccountClicked(object sender, EventArgs e)
+    {
+        string action = await DisplayActionSheet(
+            "계정", "취소", null, "로그아웃", "회원 탈퇴");
+
+        if (action == "로그아웃")
+        {
+            await Logout();
+        }
+        else if (action == "회원 탈퇴")
+        {
+            await DeleteAccount();
+        }
+    }
+
+    private async Task Logout()
     {
         bool ok = await DisplayAlert("로그아웃", "로그아웃할까요?", "로그아웃", "취소");
         if (!ok) return;
 
         _api.Logout();
         await Shell.Current.GoToAsync("//LoginPage");
+    }
+
+    private async Task DeleteAccount()
+    {
+        bool ok = await DisplayAlert(
+       "회원 탈퇴",
+       "정말 탈퇴할까요?\n모든 프로젝트와 할 일이 삭제되며 되돌릴 수 없습니다.",
+       "탈퇴", "취소");
+        if (!ok) return;
+
+        bool confirm = await DisplayAlert(
+        "최종 확인",
+        "이 작업은 되돌릴 수 없습니다. 계속할까요?",
+        "네, 탈퇴합니다", "취소");
+        if (!confirm) return;
+
+        try
+        {
+            bool success = await _api.DeleteAccountAsync();
+            if (success)
+            {
+                await Shell.Current.GoToAsync("//LoginPage");
+            }
+            else
+            {
+                await DisplayAlert("오류", "탈퇴에 실패했어요. 다시 시도해주세요.", "확인");
+            }
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("오류", $"탈퇴 실패: {ex.Message}", "확인");
+        }
     }
 }

@@ -22,13 +22,13 @@
 		<Nullable>enable</Nullable>
 
 		<!-- Display name -->
-		<ApplicationTitle>Kairos.App</ApplicationTitle>
+		<ApplicationTitle>Kairos</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.kairos.app</ApplicationId>
+		<ApplicationId>com.jiwon0612.kairos</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+		<ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">11.0</SupportedOSPlatformVersion>

@@ -234,5 +234,17 @@ namespace Kairos.App.Services
             var result = new SetTodayRequest { IsToday = isToday };
             await _http.PatchAsJsonAsync($"/api/Project/{id}/today", result);
         }
+
+        public async Task<bool> DeleteAccountAsync()
+        {
+            var response = await _http.DeleteAsync("/api/Auth/account");
+            if (response.IsSuccessStatusCode)
+            {
+                SecureStorage.RemoveAll();
+                _http.DefaultRequestHeaders.Authorization = null;
+
+            }
+            return response.IsSuccessStatusCode;
+        }
     }
 }
