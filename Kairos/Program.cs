@@ -1,4 +1,4 @@
-
+ï»¿
 using Kairos.Api.Models;
 using Kairos.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -33,7 +33,7 @@ namespace Kairos
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
-                // ÅäÅ« ÀÔ·Â ¹æ½Ä Á¤ÀÇ
+                // í† í° ì…ë ¥ ë°©ì‹ ì •ì˜
                 options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -41,10 +41,10 @@ namespace Kairos
                     Scheme = "Bearer",
                     BearerFormat = "JWT",
                     In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-                    Description = "JWT ÅäÅ«À» ÀÔ·ÂÇÏ¼¼¿ä"
+                    Description = "JWT í† í°ì„ ì…ë ¥í•˜ì„¸ìš”"
                 });
 
-                // ¸ğµç ¿äÃ»¿¡ ÅäÅ« Àû¿ë
+                // ëª¨ë“  ìš”ì²­ì— í† í° ì ìš©
                 options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
     {
         {
@@ -64,31 +64,33 @@ namespace Kairos
             //builder.Services.AddDbContext<Data.KairosDbContext>(options =>
             //    options.UseNpgsql(builder.Configuration.GetConnectionString("KairosDb")));
 
-            //¹èÆ÷ ¼³Á¤
+            //ë°°í¬ ì„¤ì • (Neon: postgresql://user:pass@ep-xxx.neon.tech/db?sslmode=require)
             var dataBaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+            string? connectionString;
             if (!string.IsNullOrEmpty(dataBaseUrl))
             {
                 var uri = new Uri(dataBaseUrl);
-                var userInfo = uri.UserInfo.Split(':');
+                var userInfo = uri.UserInfo.Split(':', 2);
 
-                var portValue = uri.Port == -1 ? 5432 : uri.Port;
-
-                var connectionString =
-                    $"Host={uri.Host};" +
-                    $"Port={portValue};" +
-                    $"Database={uri.AbsolutePath.TrimStart('/')};" +
-                    $"Username={userInfo[0]};" +
-                    $"Password={userInfo[1]};" +
-                    $"SSL Mode=Require;Trust Server Certificate=true";
-
-                builder.Services.AddDbContext<KairosDbContext>(options =>
-                    options.UseNpgsql(connectionString));
+                connectionString = new Npgsql.NpgsqlConnectionStringBuilder
+                {
+                    Host = uri.Host,
+                    Port = uri.Port == -1 ? 5432 : uri.Port,
+                    Database = uri.AbsolutePath.TrimStart('/'),
+                    Username = Uri.UnescapeDataString(userInfo[0]),
+                    Password = Uri.UnescapeDataString(userInfo[1]),
+                    SslMode = Npgsql.SslMode.Require,
+                    // Neonì€ ìœ íœ´ ì‹œ ì»´í“¨íŠ¸ê°€ ì ë“¤ì–´ì„œ ì²« ì—°ê²°ì´ ëŠë¦´ ìˆ˜ ìˆìŒ
+                    Timeout = 30,
+                }.ConnectionString;
             }
             else
             {
-                builder.Services.AddDbContext<KairosDbContext>(options =>
-                    options.UseNpgsql(builder.Configuration.GetConnectionString("KairosDb")));
+                connectionString = builder.Configuration.GetConnectionString("KairosDb");
             }
+
+            builder.Services.AddDbContext<KairosDbContext>(options =>
+                options.UseNpgsql(connectionString, npgsql => npgsql.EnableRetryOnFailure()));
 
             builder.Services.AddIdentityCore<ApplicationUser>(options =>
             {
